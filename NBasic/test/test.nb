@@ -1,0 +1,8 @@
+
+; Programme de test de l'interpréteur de NBasic
+; le 08/09/2025
+; par Noé Poirier
+
+program test
+  console.disp("Hello World !\n")
+end program

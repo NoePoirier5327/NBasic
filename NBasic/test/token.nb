@@ -1,0 +1,7 @@
+dim a as integer
+dim r as real
+
+a = 0
+r = a * 6
+
+mqlkdjf

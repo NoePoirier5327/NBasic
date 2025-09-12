@@ -1,0 +1,43 @@
+
+; Programme de test de classe du NBasic
+; le 7/09/2025
+; par Noé Poirier
+
+class Map
+  public
+    constructor Map(int width, int height)
+      this.map = [[0 for i = 0 to width end for] for i = 0 to height end for]
+      this.tiles = " EP"
+      this.width = width
+      this.height = height
+    end constructor
+
+    sub display()
+      for ligne = 0 to this.height
+        for colonne = 0 to this.width
+          console.disp(this.tiles[this.map[ligne][colonne]])
+        end for
+        console.disp("\n")
+      end for
+    end sub
+
+    sub set_tile(int x, int y, int val)
+      if x >= 0 and x < this.width and y >= 0 and y < this.height then
+        this.map[y][y] = val
+      else
+        console.error("Index out of range.")
+      end if
+    end sub
+  end public
+  
+  private
+    int[] map
+    string tiles
+    int width, height
+  end private
+end class
+
+program tilemap
+  Map map = new Map(10, 10)
+  map.display()
+end program

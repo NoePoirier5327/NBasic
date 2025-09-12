@@ -1,0 +1,22 @@
+
+; Programme de test de la syntaxe NBasic
+; le 09/09/2025
+; par Noé Poirier
+
+program age
+  dim a as integer
+  
+  console.disp("Donnes-moi ton âge et je te dirais qui tu es.\n");
+  console.disp("Quel es ton âge ? : \n")
+  console.prompt(a);
+
+  if a < 0 then
+    console.disp("Tu n'es pas encore né.\n")
+  else if a >= 0 and a < 12 then
+    console.disp("Tu es enfant.\n")
+  else if a >= 12 and a < 18 then
+    console.disp("Tu es adolescent.\n")
+  else
+    console.disp("Tu es adulte.\n")
+  end if
+end program
