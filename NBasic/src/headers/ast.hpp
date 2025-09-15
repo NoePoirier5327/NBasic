@@ -44,5 +44,15 @@ struct IdentifierNode : Node
   IdentifierNode(std::string &n) : name(n) {};
 };
 
+/**
+ * @brief Fonction chargé de dé allouer la mémoire occupé par l'arbre de manière récursive
+ * @param node: Node*, sous-arbre courant dont la mémoire est à dé allouer
+*/
 void destroy_ast(Node* node);
+
+/**
+ * @brief Fonction d'affichage de l'arbre d'instruction
+ * @param node: Node*, noeud courant dont le contenu est afficher
+ * @param indent: int, indentation de l'affichage de l'affichage courant, par défaut à 0
+*/
 void print_ast(Node* node, int indent = 0);
