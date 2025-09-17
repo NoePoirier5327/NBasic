@@ -8,9 +8,10 @@ std::string read_file(std::string& file_name);
 
 int main(int argc, char *argv[])
 {
-  std::vector<Token> tokens;
+  Queue tokens;
   std::string src = "";
-  Node* node = nullptr; Parser parser;
+  Node* node = nullptr;
+  Parser parser;
 
   // Si on a 1 argument pour le fichier, on lance l'interpréteur
   if (argc == 1) 
@@ -39,11 +40,30 @@ int main(int argc, char *argv[])
       {
         std::cout << "A propos du 'Not so Basic' : " << std::endl;
       }
-      else if (src == "kijetesantakalu li tawa sike") { std::cout << "toki la sitelen pi kijetesantakalu li kama!!" << std::endl; }
+      else if (src == "kijetesantakalu li tawa sike")
+      {
+        std::cout << std::endl;
+        std::cout << "      kkkkkkkk" << std::endl;
+        std::cout << "     k        k" << std::endl;
+        std::cout << "    k         k" << std::endl;
+        std::cout << "    k    k  k k" << std::endl;
+        std::cout << "    k    k  k  k" << std::endl;
+        std::cout << "    k    k  k   k" << std::endl;
+        std::cout << "    k          k" << std::endl;
+        std::cout << "    k         k" << std::endl;
+        std::cout << "    k         k" << std::endl;
+        std::cout << "    k         k" << std::endl;
+        std::cout << " kkkk         k" << std::endl;
+        std::cout << "k k k  k      k" << std::endl;
+        std::cout << "k k k   k  k  k" << std::endl;
+        std::cout << "k k k   k  k  k" << std::endl;
+        std::cout << " kkkkkkkk  k  k" << std::endl;
+        std::cout << std::endl;
+      }
       else
       {
         tokens = tokenize(src); // On découpe l'entrée en token
-        //print_token(tokens); // On affiche les tokens de l'entrée
+        print_token(tokens); // On affiche les tokens de l'entrée
         node = parser.parse_statement(tokens);
         //print_ast(node);
         destroy_ast(node); node = nullptr;
@@ -58,8 +78,8 @@ int main(int argc, char *argv[])
     tokens = tokenize(src);
     print_token(tokens);
     node = parser.parse_statement(tokens);
-    print_ast(node);
-    destroy_ast(node);
+    //print_ast(node);
+    destroy_ast(node); node = nullptr;
   }
 
   return 0;

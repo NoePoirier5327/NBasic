@@ -1,126 +1,86 @@
 #include "headers/parser.hpp"
-#include "headers/ast.hpp"
-#include "headers/token.hpp"
 
-Parser::Parser()
-{
-  this->parse_end.name = "p_end";
-  this->parse_end.type = t_end;
-  this->parse_end.line = -1;
-  this->parse_end.scope = -1;
-}
-
-bool Parser::is_at_end() { return this->get_current().name == "p_end"; }
-
-Token& Parser::get_previous()
-{
-  if (this->pos <= 0)
-    return this->parse_end;
-  return this->tokens[this->pos-1];
-}
-
-Token& Parser::get_current() 
-{
-  if (this->pos == this->tokens.size()) // Empèche les dépassements mémoire
-    return this->parse_end;
-  return this->tokens[this->pos];
-}
-
-Token& Parser::eat()
-{ 
-  if (this->pos == this->tokens.size()) // Empèche les dépassements mémoire 
-    return this->parse_end;
-  return this->tokens[this->pos++];
-}
-
-Node* Parser::parse_statement(std::vector<Token>& tokens)
+Node* Parser::parse_statement(Queue& tokens)
 {
   this->pos = 0;
   this->tokens = tokens;
 
-  switch (this->get_current().type)
+  if (this->tokens.get_first().type == t_key_word && this->tokens.get_first().name == "dim") return this->parse_var_decl();
+  //else if (this->tokens.get_first().type == t_identifier) return this->parse_assignment();
+  else
   {
-    case t_dim: // Si on a 'dim' en début de ligne, on cherche à déclarer une variable
-      return this->parse_var_decl();
-
-    case t_identifier: // Si on a un nom de variable en première ligne, alors, on cherche à assigner une valeur
-      return this->parse_assignment();
-
-    default:
-    {
-      std::string msg = "token non reconnu " + this->get_current().name;
-      print_error(this->get_current().line, msg);
-      return nullptr;
-    }
+    std::string msg = "token non reconnu " + this->tokens.get_first().name;
+    print_error(this->tokens.get_first().line, msg);
+    return nullptr;
   }
 }
 
 Node* Parser::parse_var_decl()
 {
   // On empèche les débordements mémoire
-  if (this->is_at_end()) return nullptr;
+  if (this->tokens.is_empty()) return nullptr;
 
-  this->eat(); // dim
+  this->tokens.pop(); // dim
   
   // On empèche les débordements mémoire
-  if (this->is_at_end()) 
+  if (this->tokens.is_empty()) 
   {
     std::string msg = "nom de variable attendue";
-    print_error(this->get_previous().line, msg);
+    print_error(-1, msg);
     return nullptr;
   }
 
   // On est sur le nom de la variable
-  if (is_key_word(this->get_current().name))
+  if (this->tokens.get_first().type == t_key_word)
   {
-    std::string msg = "ce nom est utilisé par un mot clé";
-    print_error(this->get_current().line, msg);
+    std::string msg = "ce nom est réservé par un mot clé";
+    print_error(-1, msg);
     return nullptr;
   }
-  
-  std::string var_name = this->get_current().name;
-  this->eat();
+  std::string var_name = this->tokens.get_first().name;
+  this->tokens.pop();
   
   // On empèche les débordements mémoire
-  if (this->is_at_end())
+  if (this->tokens.is_empty())
   {
     std::string msg = "mot clé 'as' attendu";
-    print_error(this->get_previous().line, msg);
+    print_error(-1, msg);
     return nullptr;
   }
   
   // On au moment où on attribue un type à une variable
-  if (this->get_current().name != "as")
+  if (this->tokens.get_first().name != "as")
   {
     std::string msg = "mot clé 'as' attendu";
-    print_error(this->get_current().line, msg);
+    print_error(-1, msg);
     return nullptr;
   }
 
-  this->eat(); // as
+  this->tokens.pop(); // as
 
   // On empèche les débordements mémoire
-  if (this->is_at_end())
+  if (this->tokens.is_empty())
   {
     std::string msg = "type de variable attendu";
-    print_error(this->get_previous().line, msg);
+    print_error(-1, msg);
     return nullptr;
   }
 
   // On vérifie la validité du type
-  if (is_valid_type(this->get_current().name) == false)
+  if (is_valid_type(this->tokens.get_first().name) == false)
   {
-    std::string msg = "le type '" + this->get_current().name + "' n'est pas valable";
-    print_error(this->get_current().line, msg);
+    std::string msg = "le type '" + this->tokens.get_first().name + "' n'est pas valable";
+    print_error(this->tokens.get_first().line, msg);
     return nullptr;
   }
 
-  std::string var_type = this->get_current().name;
-  this->eat();
+  std::string var_type = this->tokens.get_first().name;
+  this->tokens.pop();
 
   return new VarDeclNode(var_name, var_type);
 }
 
+/*
 Node* Parser::parse_assignment()
 {
   std::string var_name = this->get_current().name; // nom de la variable
@@ -210,4 +170,4 @@ Node* Parser::parse_factor()
     }
   }
 }
-
+*/
