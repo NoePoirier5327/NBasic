@@ -5,7 +5,7 @@
 
 class Map
   public
-    constructor Map(int width, int height)
+    constructor Map(width as integer, height as integer)
       this.map = [[0 for i = 0 to width end for] for i = 0 to height end for]
       this.tiles = " EP"
       this.width = width
@@ -21,7 +21,7 @@ class Map
       end for
     end sub
 
-    sub set_tile(int x, int y, int val)
+    sub set_tile(x as integer, y as integer, val as integer)
       if x >= 0 and x < this.width and y >= 0 and y < this.height then
         this.map[y][y] = val
       else
@@ -31,9 +31,9 @@ class Map
   end public
   
   private
-    int[] map
-    string tiles
-    int width, height
+    map as integer[]
+    tiles as string
+    width, height as integer
   end private
 end class
 
