@@ -1,17 +1,40 @@
 #include "headers/parser.hpp"
+#include "headers/ast.hpp"
+#include "headers/global.hpp"
 
-Node* Parser::parse_statement(Queue& tokens)
+
+ProgramNode Parser::parse_program(Queue& tokens)
 {
-  this->pos = 0;
   this->tokens = tokens;
+  ProgramNode program;
+  
+  while (this->tokens.is_empty() == false)
+    program.body.push_back(this->parse_statement());
 
-  if (this->tokens.get_first().type == t_key_word && this->tokens.get_first().name == "dim") return this->parse_var_decl();
-  //else if (this->tokens.get_first().type == t_identifier) return this->parse_assignment();
-  else
+  return program;
+}
+
+Node* Parser::parse_statement()
+{
+  switch (this->tokens.get_first().type)
   {
-    std::string msg = "token non reconnu " + this->tokens.get_first().name;
-    print_error(this->tokens.get_first().line, msg);
-    return nullptr;
+    case t_key_word:
+      if (this->tokens.get_first().name == "dim")
+        return this->parse_var_decl();
+      return nullptr;
+
+    case t_num_literal:
+      // Pour l'instant on considère que tout les chiffres sont des entiers
+      return new IntNode(std::stoi(this->tokens.get_first().name));
+
+    case t_identifier:
+      return this->parse_assignment();
+
+    default:
+    {
+      print_error(this->tokens.get_first().line, "token non reconnu : " + this->tokens.get_first().name);
+      return nullptr;
+    }
   }
 }
 
@@ -20,39 +43,35 @@ Node* Parser::parse_var_decl()
   // On empèche les débordements mémoire
   if (this->tokens.is_empty()) return nullptr;
 
+  int line = this->tokens.get_first().line;
   this->tokens.pop(); // dim
   
   // On empèche les débordements mémoire
   if (this->tokens.is_empty()) 
   {
-    std::string msg = "nom de variable attendue";
-    print_error(-1, msg);
+    print_error(line, "nom de variable attendu.");
     return nullptr;
   }
 
   // On est sur le nom de la variable
   if (this->tokens.get_first().type == t_key_word)
   {
-    std::string msg = "ce nom est réservé par un mot clé";
-    print_error(-1, msg);
+    print_error(line, "ce nom est réservé par un mot clé.");
     return nullptr;
   }
-  std::string var_name = this->tokens.get_first().name;
-  this->tokens.pop();
+  std::string var_name = this->tokens.pop().name;
   
   // On empèche les débordements mémoire
   if (this->tokens.is_empty())
   {
-    std::string msg = "mot clé 'as' attendu";
-    print_error(-1, msg);
+    print_error(line, "mot clé 'as' attendu.");
     return nullptr;
   }
   
   // On au moment où on attribue un type à une variable
   if (this->tokens.get_first().name != "as")
   {
-    std::string msg = "mot clé 'as' attendu";
-    print_error(-1, msg);
+    print_error(line, "mot clé 'as' attendu.");
     return nullptr;
   }
 
@@ -61,113 +80,123 @@ Node* Parser::parse_var_decl()
   // On empèche les débordements mémoire
   if (this->tokens.is_empty())
   {
-    std::string msg = "type de variable attendu";
-    print_error(-1, msg);
+    print_error(line, "type de variable attendu.");
     return nullptr;
   }
 
   // On vérifie la validité du type
   if (is_valid_type(this->tokens.get_first().name) == false)
   {
-    std::string msg = "le type '" + this->tokens.get_first().name + "' n'est pas valable";
-    print_error(this->tokens.get_first().line, msg);
+    print_error(line, "le type '" + this->tokens.get_first().name + "' n'est pas valable.");
     return nullptr;
   }
 
-  std::string var_type = this->tokens.get_first().name;
-  this->tokens.pop();
+  std::string var_type = this->tokens.pop().name;
 
-  return new VarDeclNode(var_name, var_type);
+  return new VarDeclNode(var_name, var_type, line);
 }
 
-/*
 Node* Parser::parse_assignment()
 {
-  std::string var_name = this->get_current().name; // nom de la variable
-  this->eat(); // nom de la variable
-  
-  // On empèche les débordements mémoires
-  if (this->is_at_end())
-  {
-    std::string msg = "mot clé '=' attendu";
-    print_error(this->get_previous().line, msg);
-    return nullptr;
-  }
-
-  // On vérifie qu'on a bien un égale après le nom de variable
-  if (this->get_current().type != t_equal)
-  {
-    std::string msg = "mot clé '=' attendu";
-    print_error(this->get_current().line, msg);
-    return nullptr;
-  }
-  this->eat(); // '='
-
   // On empèche les débordements mémoire
-  if (this->is_at_end())
+  if (this->tokens.is_empty() == true) return nullptr;
+
+  // On récupère le nom de la variable
+  std::string var_name = this->tokens.get_first().name;
+  int line = this->tokens.pop().line;
+
+  // On évite les débordements mémoire
+  if (this->tokens.is_empty() == true)
   {
-    std::string msg = "expression attendu";
-    print_error(this->get_previous().line, msg);
+    print_error(line, "le mot clé '=' est attendu.");
     return nullptr;
   }
 
-  // On traite l'expression associée à la variable
-  Node* expr = this->parse_expression();
+  // On vérifie que le mot clé '=' soit bien à la suite de l'expression
+  if (this->tokens.get_first().name != "=")
+  {
+    std::cout << this->tokens.get_first().name << std::endl;
+    print_error(line, "le mot clé '=' est attendu.");
+    return nullptr;
+  }
 
-  return new AssignmentNode(var_name, expr);
-}
-
-Node* Parser::parse_expression()
-{
-  Node* left = this->parse_term();
-  std::string op; Token temp = this->get_current();
+  this->tokens.pop(); // On supprime le '='
   
-  while (this->is_at_end() == false && (temp.type == t_bin_operator && (temp.name == "+" || temp.name == "-")))
+  // On évite les débordements mémoire
+  if (this->tokens.is_empty() == true)
   {
-    op = this->eat().name; // On récupère l'opérateur
-    Node *right = this->parse_term(); // On traite la valeur suivante
-    left = new BinaryOpNode(op, left, right); // On créer le noeud d'opérateur binaire
-    temp = this->get_current();
+    print_error(line, "la valeur à assigner est attendue.");
+    return nullptr;
   }
 
-  return left;
+  // On traite la valeur de l'assignement en un noeud courant
+  Node* val = this->parse_additive();
+
+  // On renvoie un noeud d'assignation de variable
+  return new AssignmentNode(var_name, val, line);
 }
 
-Node* Parser::parse_term()
+Node* Parser::parse_additive()
 {
-  Node* left = this->parse_factor(); // On traite la valeur actuelle
-  std::string op; Token temp = this->get_current();
+  if (this->tokens.is_empty() == true) return nullptr;
 
-  while (this->is_at_end() == false && (temp.type == t_bin_operator && (temp.name == "*" || temp.name == "/" || temp.name == "%")))
+  Node* left = this->parse_multiplicative();
+
+  while (this->tokens.get_first().name == "+" || this->tokens.get_first().name == "-")
   {
-    op = this->eat().name; // On récupère l'opérateur
-    Node* right = this->parse_factor(); // On traite la valeur suivante
+    std::string op = this->tokens.pop().name;
+    Node* right = this->parse_multiplicative();
     left = new BinaryOpNode(op, left, right);
-    temp = this->get_current();
   }
 
   return left;
 }
 
-Node* Parser::parse_factor()
+Node* Parser::parse_multiplicative()
 {
-  switch (this->get_current().type)
+  if (this->tokens.is_empty() == true) return nullptr;
+  Node* left = this->parse_prim_expr();
+
+  while (this->tokens.get_first().name == "*" || this->tokens.get_first().name == "/" || this->tokens.get_first().name == "%")
+  {
+    std::string op = this->tokens.pop().name;
+    Node* right = this->parse_prim_expr();
+
+    left = new BinaryOpNode(op, left, right);
+  }
+
+  return left;
+}
+
+Node* Parser::parse_prim_expr()
+{
+  switch (this->tokens.get_first().type)
   {
     case t_num_literal:
-    {
-      int value = std::stoi(this->get_current().name);
-      return new IntNode(value);
-    }
+      return new IntNode(std::stoi(this->tokens.get_first().name));
 
     case t_identifier:
-      return new IdentifierNode(this->get_current().name);
+      return new IdentifierNode(this->tokens.get_first().name);
 
-    default:
+    case t_left_parenthese:
     {
-      std::string msg = "token '" + this->get_current().name + "' inattendu dans l'expression";
-      print_error(this->get_current().line, msg);
-      return nullptr;
+      // On cherche la seconde parenthese dans la file
+      int line = this->tokens.pop().line;
+      Queue temp = this->tokens;
+
+      while ((temp.is_empty() == false) || (temp.get_first().line == line) || (temp.get_first().type != t_right_parenthese)) temp.pop();
+
+      if (temp.is_empty() || line != temp.get_first().line)
+      {
+        print_error(line, "parenthèse fermante manquante.");
+        return nullptr;
+      }
+
+      return this->parse_additive();
     }
+    
+    default:
+      print_error(this->tokens.get_first().line, "expression : " + this->tokens.get_first().name + " non reconnue.");
+      return nullptr;
   }
 }
-*/

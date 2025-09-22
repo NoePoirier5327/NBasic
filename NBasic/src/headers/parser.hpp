@@ -13,15 +13,21 @@ class Parser
      * @brief Constructeur de la classe
     */
     //Parser();
-
+    
     /**
-     * @brief Méthode créant l'arbre de traitement du programme
-     * @param tokens: Queue&, liste de token à traiter
-     * @return Node*, arbre contenant le programme traité
+     * @brief Méthode permettant de créer l'arbre contenant l'entièreté du programme à éxécuter
+     * @param tokens: Queue&, file de tokens à traiter
+     * @return ProgramNode, arbre contenant le programme à traiter
     */
-    Node* parse_statement(Queue& tokens);
+    ProgramNode parse_program(Queue& tokens);
 
   private:
+    /**
+     * @brief Méthode créant l'arbre de traitement du programme
+     * @return Node*, arbre contenant le programme traité
+    */
+    Node* parse_statement();
+
     /**
      * @brief Méthode traitant la déclaration de variable
      * @return Node*, sous-arbre contenant la variable déclaré
@@ -30,28 +36,27 @@ class Parser
     
     /**
      * @brief Méthode traitant l'assignation de valeur à une variable
-     * @return Node*, instruction d'assignation de valeur à la variable
+     * @return Node*, arbre d'assignation d'instruction de valeur à la variable
     */
-    //Node* parse_assignment();
-
-    /**
-     * @brief Méthode traitant l'expression à assigner à une variable s'il s'agit d'une opération "+" ou "-"
-     * @return Node*, sous-arbre contenant les instructions de traitement de l'expression
-    */
-    //Node* parse_expression();
-
-    /**
-     * @brief Méthode traitant le reste des opérations de calcul
-     * @return Node*, sous-arbre contenant les instructions de traitement de l'expression
-    */
-    //Node* parse_term();
+    Node* parse_assignment();
     
     /**
-     * @brief Méthode chargée d'assigner des types à des valeurs
-     * @return Node*, sous-arbre contenant les valeurs et leurs types
+     * @brief Méthode traitant l'expression additive courante ('+' ou '-')
+     * @return Node*, noeud d'instruction additif courant
     */
-    //Node* parse_factor();
+    Node* parse_additive();
 
-    size_t pos;
-    Queue tokens;
+    /**
+     * @brief Méthode traitant l'expression multiplicative courante ('*', '/' ou '%')
+     * @return Node*, noeud d'instruction multiplicatif courant
+    */
+    Node* parse_multiplicative();
+
+    /**
+     * @brief Méthode permettant de traiter les expressions gauche et ou droite d'un noeud opérateur binaire
+     * @return Node*, noeud de valeur courant
+    */
+    Node* parse_prim_expr();
+
+    Queue tokens; // file de token courante à traiter
 };

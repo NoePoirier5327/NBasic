@@ -45,10 +45,14 @@ bool is_alpha(std::string& word)
   return false;
 }
 
-void print_error(int line, std::string &msg)
+bool is_in_map(std::map<std::string, int>& vars, std::string& key) { return vars.find(key) != vars.end(); }
+
+void print_error(int &line, std::string msg)
 {
   //throw std::runtime_error("[ERREUR] : l " + std::to_string(line) + " -> " + msg + "\n");
   std::cout << "[ERREUR] : l " << line << " -> " << msg << std::endl;
 }
 
-void print_debug(std::string& msg) { std::cout << "[DEBUG] : " << msg << std::endl; }
+void print_debug(std::string msg) { std::cout << "[DEBUG] : " << msg << std::endl; }
+
+void print_warning(std::string msg) { std::cout << "[ATTENTION] : " << msg << std::endl; }

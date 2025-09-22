@@ -9,36 +9,20 @@ void destroy_ast(Node * node)
   std::string msg;
 
   // Sinon, on détruit récursivement l'arbre
-  if (auto* var_decl = dynamic_cast<VarDeclNode*>(node))
-  {
-    delete var_decl;
-    msg = "noeud var_decl détruit avec succès";
-  }
+  if (auto* var_decl = dynamic_cast<VarDeclNode*>(node)) delete var_decl;
   else if (auto* assign = dynamic_cast<AssignmentNode*>(node))
   {
     destroy_ast(assign->value); // On supprime son enfant
     delete assign;              // On le supprime ensuite
-    msg = "noeud d'assignation détruit avec succès";
   }
   else if (auto* bin_op = dynamic_cast<BinaryOpNode*>(node))
   {
     destroy_ast(bin_op->left);  // On supprime le fils gauche
     destroy_ast(bin_op->right); // puis le droit
     delete bin_op;              // puis enfin le parent
-    msg = "noeud d'opérateur binaire détruit avec succès";
   }
-  else if (auto* int_node = dynamic_cast<IntNode*>(node)) 
-  {
-    delete int_node;
-    msg = "noeud entier détruit avec succès";
-  }
-  else if (auto* identifier = dynamic_cast<IdentifierNode*>(node))
-  {
-    delete identifier;
-    msg = "noeud d'identification détruit avec succès";
-  }
-
-  print_debug(msg);
+  else if (auto* int_node = dynamic_cast<IntNode*>(node)) delete int_node;
+  else if (auto* identifier = dynamic_cast<IdentifierNode*>(node)) delete identifier;
 }
 
 void print_ast(Node *ast, int indent)

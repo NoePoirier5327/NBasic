@@ -68,14 +68,28 @@ bool is_a_digit(std::string& c);
 bool is_alpha(std::string& word);
 
 /**
- * @brief Fonction permettant d'afficher un message d'erreur
- * @param line: int, ligne à laquelle l'erreur est apparue
- * @param msg: std::string&, message d'erreur à afficher
+ * @brief Fonction permettant de savoir si une valeur est définit dans un dictionnaire
+ * @param vars: std::map&, dictionnaire sur lequel effectuer la recherche
+ * @param key: std::string&, clé à chercher dans le dictionnaire
+ * @return bool, true si la valeur associé à la clé est trouvé, false sinon
 */
-void print_error(int line, std::string& msg);
+bool is_in_map(std::map<std::string, int>& vars, std::string& key);
+
+/**
+ * @brief Fonction permettant d'afficher un message d'erreur
+ * @param line: int&, ligne à laquelle l'erreur est apparue
+ * @param msg: std::string, message d'erreur à afficher
+*/
+void print_error(int &line, std::string msg);
 
 /**
  * @brief Fonction d'affichage d'un message de débug dans l'interpréteur
- * @param msg: std::string&, message de débug à afficher
+ * @param msg: std::string, message de débug à afficher
 */
-void print_debug(std::string& msg);
+void print_debug(std::string msg);
+
+/**
+ * @brief Fonction d'affichage d'une mise en garde pour l'utilisateur
+ * @param msg: std::string, message de mise en garde destiné à l'utilisateur
+*/
+void print_warning(std::string msg);
