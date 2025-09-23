@@ -173,27 +173,10 @@ Node* Parser::parse_prim_expr()
   switch (this->tokens.get_first().type)
   {
     case t_num_literal:
-      return new IntNode(std::stoi(this->tokens.get_first().name));
+      return new IntNode(std::stoi(this->tokens.pop().name));
 
     case t_identifier:
-      return new IdentifierNode(this->tokens.get_first().name);
-
-    case t_left_parenthese:
-    {
-      // On cherche la seconde parenthese dans la file
-      int line = this->tokens.pop().line;
-      Queue temp = this->tokens;
-
-      while ((temp.is_empty() == false) || (temp.get_first().line == line) || (temp.get_first().type != t_right_parenthese)) temp.pop();
-
-      if (temp.is_empty() || line != temp.get_first().line)
-      {
-        print_error(line, "parenthèse fermante manquante.");
-        return nullptr;
-      }
-
-      return this->parse_additive();
-    }
+      return new IdentifierNode(this->tokens.pop().name);
     
     default:
       print_error(this->tokens.get_first().line, "expression : " + this->tokens.get_first().name + " non reconnue.");
