@@ -1,4 +1,5 @@
 #include "headers/interpreter.hpp"
+#include "headers/ast.hpp"
 
 //Interpreter::~Interpreter() { destroy_ast(this->ast); this->ast = nullptr; }
 
@@ -52,17 +53,20 @@ void Interpreter::run_cli()
     else
     {
       this->tokens = tokenize(src); // On découpe l'entrée en token
-      print_token(tokens); // On affiche les tokens de l'entrée
-      this->program = parser.parse_program(this->tokens);
+      //print_token(tokens); // On affiche les tokens de l'entrée
+      this->program = this->parser.parse_program(this->tokens);
 
       // On traite l'arbre de syntaxe courant
-      for (size_t i = 0; i < this->program.body.size(); i++) print_ast(this->program.body[i]);
+      print_ast(this->program);
+      this->run_ast();
+      //print_debug("b = " + std::to_string(this->vars_int["b"]));
       
       // On le détruit
-      for (size_t i = 0; i < this->program.body.size(); i++) destroy_ast(this->program.body[i]);
+      destroy_ast(this->program);
     }
   }
 	while (run);
+  //destroy_ast(this->program);
 }
 
 void Interpreter::run_file(std::string& file_name)
@@ -79,12 +83,70 @@ std::string Interpreter::read_file(std::string& file_name)
 
   if (file.is_open() == false)
   {
-    std::string msg = "impossible d'ouvrir le fichier : " + file_name;
     int line = -1;
-    print_error(line, msg);
+    print_error(line, "impossible d'ouvrir le fichier : " + file_name);
   }
 
   std::ostringstream buffer;
   buffer << file.rdbuf();
   return buffer.str();
+}
+
+void Interpreter::run_ast()
+{
+  if (this->program.body.size() <= 0) return;
+
+  for (size_t i = 0; i < this->program.body.size(); i++)
+  {
+    // On l'interprète
+    // On déclare une variable
+    if (auto* var_decl = dynamic_cast<VarDeclNode*>(this->program.body[i]))
+    {
+      // On vérifie si la variable existe déjà en mémoire, si oui, on affiche une erreur sinon on la déclare
+      if (is_in_map(this->vars_int, var_decl->name) == false) this->vars_int.insert({var_decl->name, 0});
+      else
+      {
+        print_error(var_decl->line, "la variable '" + var_decl->name + "' ne peut pas être déclarer une nouvelle fois.");
+        return; // On arrête d'interpréter car il y a une erreur
+      }
+    }
+    else if (auto* assign = dynamic_cast<AssignmentNode*>(this->program.body[i]))
+    {
+      // On vérifie si la variable courante existe, si non -> erreur
+      if (is_in_map(this->vars_int, assign->name) == false)
+      {
+        print_error(assign->line, "la variable '" + assign->name + "' n'existe pas.");
+        return;
+      }
+
+      // si oui, on interpréte la suite
+
+      // Plusieurs possibilitées
+      // 1. La valeur à assigner est un nombre
+      else if (auto* val_int = dynamic_cast<IntNode*>(assign->value))
+      {
+        this->vars_int[assign->name] = val_int->value;
+        print_debug(assign->name + " = " + std::to_string(this->vars_int[assign->name]));
+      }
+      // 2. La valeur est associé à une autre variable
+      else if (auto* id = dynamic_cast<IdentifierNode*>(assign->value))
+      {
+        // On vérifie si la variable existe
+        if (is_in_map(this->vars_int, id->name) == false) 
+        {
+          print_error(assign->line, "la variable '" + id->name + "' n'existe pas.");
+          return;
+        }
+
+        // Si elle existe, on attribue sa valeur à notre variable courante
+        this->vars_int[assign->name] = this->vars_int[id->name];
+        print_debug(assign->name + " = " + std::to_string(this->vars_int[id->name]));
+      }
+      // 3. La valeur associé est un sous-arbre de calcul
+      else if (auto* bin_op = dynamic_cast<BinaryOpNode*>(assign->value))
+      {
+        
+      }
+    }
+  }
 }

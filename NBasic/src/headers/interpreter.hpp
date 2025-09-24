@@ -39,7 +39,7 @@ class Interpreter
     /**
      * @brief Méthode permettant d'interpréter le contenu de l'ast courant
     */
-    //void run_ast();
+    void run_ast();
 
     ProgramNode program;
     Queue tokens;

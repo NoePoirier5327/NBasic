@@ -52,14 +52,26 @@ struct IdentifierNode : Node
 };
 
 /**
+ * @brief Fonction chargé de dé allouer la mémoire prise par l'arbre de syntaxe courant
+ * @param program: ProgramNode&, arbre de syntaxe du programme courant
+*/
+void destroy_ast(ProgramNode& program);
+
+/**
  * @brief Fonction chargé de dé allouer la mémoire occupé par l'arbre de manière récursive
  * @param node: Node*, sous-arbre courant dont la mémoire est à dé allouer
 */
-void destroy_ast(Node* node);
+void destroy_ast_rec(Node* node);
+
+/**
+ * @brief Fonction d'affichage de l'arbre de syntaxe courant
+ * @param program: ProgramNode&, arbre à afficher
+*/
+void print_ast(ProgramNode& program);
 
 /**
  * @brief Fonction d'affichage de l'arbre d'instruction
  * @param node: Node*, noeud courant dont le contenu est afficher
  * @param indent: int, indentation de l'affichage de l'affichage courant, par défaut à 0
 */
-void print_ast(Node* node, int indent = 0);
+void print_ast_rec(Node* node, int indent = 0);
