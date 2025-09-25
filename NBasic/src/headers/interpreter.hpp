@@ -41,6 +41,13 @@ class Interpreter
     */
     void run_ast();
 
+    /**
+     * @brief Méthode permettant de faire le calcul contenu dans un arbre binary operator
+     * @param node: Node*, sous-arbre courant pour éffectuer le calcul récursivement
+     * @return int, résultat du calcul sous-forme entière pour l'instant
+    */
+    int calculate(Node* node);
+
     ProgramNode program;
     Queue tokens;
     Parser parser;

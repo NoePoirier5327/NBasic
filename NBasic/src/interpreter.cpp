@@ -1,5 +1,7 @@
 #include "headers/interpreter.hpp"
 #include "headers/ast.hpp"
+#include "headers/global.hpp"
+#include <string>
 
 //Interpreter::~Interpreter() { destroy_ast(this->ast); this->ast = nullptr; }
 
@@ -145,8 +147,24 @@ void Interpreter::run_ast()
       // 3. La valeur associé est un sous-arbre de calcul
       else if (auto* bin_op = dynamic_cast<BinaryOpNode*>(assign->value))
       {
-        
+        this->vars_int[assign->name] = this->calculate(bin_op);
+        print_debug(assign->name + " = " + std::to_string(this->vars_int[assign->name]));
       }
     }
+  }
+}
+
+int Interpreter::calculate(Node* node)
+{
+  if (auto * int_node = dynamic_cast<IntNode*>(node)) return int_node->value;
+  else if (auto * id = dynamic_cast<IdentifierNode*>(node)) return this->vars_int[id->name];
+  else // On sait qu'il ne peut y a voir que des identifiants, des entiers ou des opérateurs binaire
+  {
+    auto* bin_op = dynamic_cast<BinaryOpNode*>(node);
+    if (bin_op->name == "*") return static_cast<int>(this->calculate(bin_op->left) * this->calculate(bin_op->right));
+    else if (bin_op->name == "/") return static_cast<int>(this->calculate(bin_op->left) / this->calculate(bin_op->right));
+    else if (bin_op->name == "%") return static_cast<int>(this->calculate(bin_op->left) % this->calculate(bin_op->right));
+    else if (bin_op->name == "+") return static_cast<int>(this->calculate(bin_op->left) + this->calculate(bin_op->right));
+    else return static_cast<int>(this->calculate(bin_op->left) - this->calculate(bin_op->right));
   }
 }
