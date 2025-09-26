@@ -8,7 +8,11 @@ struct Node {
 };
 
 // Noeud contenant l'entièreté du programme courant
-struct ProgramNode { std::vector<Node*> body; };
+struct ProgramNode
+{
+  std::string name;
+  std::vector<Node*> body;
+};
 
 // Noeud de déclaration de variable
 struct VarDeclNode : Node
@@ -23,9 +27,10 @@ struct VarDeclNode : Node
 struct AssignmentNode : Node
 {
   std::string name;
+  std::string assign_op;
   Node* value;
   int line;
-  AssignmentNode(std::string &n, Node* val, int &l) : name(n), value(val), line(l) {};
+  AssignmentNode(std::string &n, std::string &a, Node* val, int &l) : name(n), assign_op(a), value(val), line(l) {};
 };
 
 // Noeud d'opérateur binaire

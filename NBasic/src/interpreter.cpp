@@ -1,7 +1,4 @@
 #include "headers/interpreter.hpp"
-#include "headers/ast.hpp"
-#include "headers/global.hpp"
-#include <string>
 
 //Interpreter::~Interpreter() { destroy_ast(this->ast); this->ast = nullptr; }
 
@@ -54,14 +51,15 @@ void Interpreter::run_cli()
     }
     else
     {
+      print_debug("Tokenization du programme.");
       this->tokens = tokenize(src); // On découpe l'entrée en token
-      //print_token(tokens); // On affiche les tokens de l'entrée
+      
+      print_debug("Analyse syntaxique du programme.");
       this->program = this->parser.parse_program(this->tokens);
 
       // On traite l'arbre de syntaxe courant
       print_ast(this->program);
       this->run_ast();
-      //print_debug("b = " + std::to_string(this->vars_int["b"]));
       
       // On le détruit
       destroy_ast(this->program);
@@ -73,30 +71,41 @@ void Interpreter::run_cli()
 
 void Interpreter::run_file(std::string& file_name)
 {
-  std::string src = "";
-	src = read_file(file_name);
-  tokens = tokenize(src);
-  print_token(tokens);
+  std::string src = this->read_file(file_name);
+  Queue tokens = tokenize(src);
+  this->program = this->parser.parse_program(tokens);
+
+  print_ast(this->program);
+  this->run_ast();
+
+  destroy_ast(this->program);
 }
 
 std::string Interpreter::read_file(std::string& file_name)
 {
-  std::ifstream file(file_name);
+  std::ifstream file;
+  file.open(file_name);
 
   if (file.is_open() == false)
   {
     int line = -1;
-    print_error(line, "impossible d'ouvrir le fichier : " + file_name);
+    print_error(line, "impossible de lire le fichier : " + file_name + ".");
+    return "";
   }
 
-  std::ostringstream buffer;
-  buffer << file.rdbuf();
-  return buffer.str();
+  std::string line;
+  std::string src = "";
+
+  while (std::getline(file, line)) src += line + "\n";
+
+  file.close();
+
+  return src;
 }
 
 void Interpreter::run_ast()
 {
-  if (this->program.body.size() <= 0) return;
+  if (this->program.body.size() == 0) return;
 
   for (size_t i = 0; i < this->program.body.size(); i++)
   {
@@ -122,12 +131,16 @@ void Interpreter::run_ast()
       }
 
       // si oui, on interpréte la suite
-
       // Plusieurs possibilitées
       // 1. La valeur à assigner est un nombre
       else if (auto* val_int = dynamic_cast<IntNode*>(assign->value))
       {
-        this->vars_int[assign->name] = val_int->value;
+        if (assign->assign_op == "=") this->vars_int[assign->name] = val_int->value;
+        else if (assign->assign_op == "+=") this->vars_int[assign->name] += val_int->value;
+        else if (assign->assign_op == "-=") this->vars_int[assign->name] -= val_int->value;
+        else if (assign->assign_op == "*=") this->vars_int[assign->name] *= val_int->value;
+        else if (assign->assign_op == "/=") this->vars_int[assign->name] /= val_int->value;
+
         print_debug(assign->name + " = " + std::to_string(this->vars_int[assign->name]));
       }
       // 2. La valeur est associé à une autre variable
@@ -141,13 +154,25 @@ void Interpreter::run_ast()
         }
 
         // Si elle existe, on attribue sa valeur à notre variable courante
-        this->vars_int[assign->name] = this->vars_int[id->name];
+        if (assign->assign_op == "=") this->vars_int[assign->name] = this->vars_int[id->name];
+        else if (assign->assign_op == "+=") this->vars_int[assign->name] += this->vars_int[id->name];
+        else if (assign->assign_op == "-=") this->vars_int[assign->name] -= this->vars_int[id->name];
+        else if (assign->assign_op == "*=") this->vars_int[assign->name] *= this->vars_int[id->name];
+        else if (assign->assign_op == "/=") this->vars_int[assign->name] /= this->vars_int[id->name];
+
         print_debug(assign->name + " = " + std::to_string(this->vars_int[id->name]));
       }
       // 3. La valeur associé est un sous-arbre de calcul
       else if (auto* bin_op = dynamic_cast<BinaryOpNode*>(assign->value))
       {
-        this->vars_int[assign->name] = this->calculate(bin_op);
+        int resultat = this->calculate(bin_op);
+        
+        if (assign->assign_op == "=") this->vars_int[assign->name] = resultat;
+        else if (assign->assign_op == "+=") this->vars_int[assign->name] += resultat;
+        else if (assign->assign_op == "-=") this->vars_int[assign->name] -= resultat;
+        else if (assign->assign_op == "*=") this->vars_int[assign->name] *= resultat;
+        else if (assign->assign_op == "/=") this->vars_int[assign->name] /= resultat;
+
         print_debug(assign->name + " = " + std::to_string(this->vars_int[assign->name]));
       }
     }

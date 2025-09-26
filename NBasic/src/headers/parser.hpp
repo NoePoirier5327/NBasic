@@ -17,9 +17,10 @@ class Parser
     /**
      * @brief Méthode permettant de créer l'arbre contenant l'entièreté du programme à éxécuter
      * @param tokens: Queue&, file de tokens à traiter
+     * @param console: bool, permet de savoir si on doit parser le programme comme une console live ou comme un fichier, par défaut true
      * @return ProgramNode, arbre contenant le programme à traiter
     */
-    ProgramNode parse_program(Queue& tokens);
+    ProgramNode parse_program(Queue& tokens, bool console = true);
 
   private:
     /**

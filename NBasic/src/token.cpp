@@ -1,5 +1,4 @@
 #include "headers/token.hpp"
-#include "headers/global.hpp"
 
 void print_token(Queue &tokens)
 {
@@ -29,6 +28,10 @@ Queue tokenize(std::string &src)
       //if (is_valid_type(word) == true) tokens.push_back({word, t_var_type, 1});
       if (is_key_word(word)) token = {word, t_key_word, i_line, 1};
       else if (word == "=") token = {word, t_equal, i_line, 1};
+      else if (word == "+=") token = {word, t_equal, i_line, 1};
+      else if (word == "-=") token = {word, t_equal, i_line, 1};
+      else if (word == "/=") token = {word, t_equal, i_line, 1};
+      else if (word == "*=") token = {word, t_equal, i_line, 1};
       else if (word == "+") token = {word, t_bin_operator, i_line, 1};
       else if (word == "-") token = {word, t_bin_operator, i_line, 1};
       else if (word == "*") token = {word, t_bin_operator, i_line, 1};

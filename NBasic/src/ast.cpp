@@ -34,7 +34,7 @@ void destroy_ast_rec(Node * node)
 
 void print_ast(ProgramNode& program)
 {
-  std::cout << "Program (" << std::endl;
+  std::cout << "Program " << program.name << " (" << std::endl;
   for (size_t i = 0; i < program.body.size(); i++)
     print_ast_rec(program.body[i], 1);
   std::cout << ")" << std::endl;
@@ -55,7 +55,7 @@ void print_ast_rec(Node *ast, int indent)
     std::cout << indentation << "VarDecl(" << var_decl->name << ", " << var_decl->type << ")" << std::endl;
   else if (auto* assign = dynamic_cast<AssignmentNode*>(ast))
   {
-    std::cout << indentation << "AssignVar(" << assign->name << ", ";
+    std::cout << indentation << "AssignVar(" << assign->name << " " << assign->assign_op << " ";
     print_ast_rec(assign->value, indent+1); std::cout<<")" << std::endl;
   }
   else if (auto* bin_op = dynamic_cast<BinaryOpNode*>(ast))

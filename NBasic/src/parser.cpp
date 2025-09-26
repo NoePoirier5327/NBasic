@@ -1,12 +1,10 @@
 #include "headers/parser.hpp"
-#include "headers/ast.hpp"
-#include "headers/global.hpp"
 
-
-ProgramNode Parser::parse_program(Queue& tokens)
+ProgramNode Parser::parse_program(Queue& tokens, bool console)
 {
   this->tokens = tokens;
   ProgramNode program;
+  program.name = "cli";
   
   while (this->tokens.is_empty() == false)
     program.body.push_back(this->parse_statement());
@@ -113,14 +111,18 @@ Node* Parser::parse_assignment()
   }
 
   // On vérifie que le mot clé '=' soit bien à la suite de l'expression
-  if (this->tokens.get_first().name != "=")
+  if (this->tokens.get_first().name != "=" &&
+     this->tokens.get_first().name != "+=" &&
+     this->tokens.get_first().name != "-=" &&
+     this->tokens.get_first().name != "*=" &&
+     this->tokens.get_first().name != "/=")
   {
     std::cout << this->tokens.get_first().name << std::endl;
-    print_error(line, "le mot clé '=' est attendu.");
+    print_error(line, "le mot clé d'assignation est attendu, soit '=', '+=', '-=', '/=' ou encore '*='.");
     return nullptr;
   }
 
-  this->tokens.pop(); // On supprime le '='
+  std::string assign_op = this->tokens.pop().name; // On récupère l'opérateur d'assignation
   
   // On évite les débordements mémoire
   if (this->tokens.is_empty() == true)
@@ -133,7 +135,7 @@ Node* Parser::parse_assignment()
   Node* val = this->parse_additive();
 
   // On renvoie un noeud d'assignation de variable
-  return new AssignmentNode(var_name, val, line);
+  return new AssignmentNode(var_name, assign_op, val, line);
 }
 
 Node* Parser::parse_additive()
