@@ -118,7 +118,7 @@ Node* Parser::parse_assignment()
      this->tokens.get_first().name != "/=")
   {
     std::cout << this->tokens.get_first().name << std::endl;
-    print_error(line, "le mot clé d'assignation est attendu, soit '=', '+=', '-=', '/=' ou encore '*='.");
+    print_error(line, "un mot clé d'assignation est attendu.");
     return nullptr;
   }
 
@@ -180,8 +180,44 @@ Node* Parser::parse_prim_expr()
     case t_identifier:
       return new IdentifierNode(this->tokens.pop().name);
     
+    /*
+    case t_left_parenthese:
+    {
+      int line = this->tokens.pop().line; // !'('
+      bool not_found = true;
+      
+      // On cherche si on a bien une parenthèse fermante quelque part, si oui, on l'enlève
+      Queue temp;
+      while (this->tokens.is_empty() == false)
+      {
+        // On cherche si on trouve le token parenthese fermante qui correspond à celui qui ferme la parenthèse ouverte
+        if (this->tokens.get_first().type == t_right_parenthese && this->tokens.get_first().line == line && not_found == true)
+        {
+          //this->tokens.pop();
+          not_found = false;
+        }
+        else temp.push(this->tokens.pop());
+      }
+
+      if (not_found == true)
+      {
+        print_error(line, "parenthèse fermante manquante.");
+        return nullptr;
+      }
+
+      // On récupère le reste des tokens et on les remets dans la file courante
+      while (temp.is_empty() == false) this->tokens.push(temp.pop());
+
+      return this->parse_prim_expr();
+    }
+
+    case t_right_parenthese:
+      this->tokens.pop();
+      return this->parse_prim_expr();
+    */
+    
     default:
-      print_error(this->tokens.get_first().line, "expression : " + this->tokens.get_first().name + " non reconnue.");
+      print_error(this->tokens.get_first().line, "expression '" + this->tokens.get_first().name + "' non reconnue.");
       return nullptr;
   }
 }

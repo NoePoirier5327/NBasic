@@ -5,7 +5,10 @@ void print_token(Queue &tokens)
   int n = tokens.get_size();
   for (int i = 0; i < n; i++)
   {
-    std::cout << "Name : " << tokens.get_first().name << " | Type : " << tokens.get_first().type << " | Scope : " << tokens.get_first().scope << "\n";
+    std::cout << "Name : " << tokens.get_first().name;
+    std::cout << " | Type : " << tokens.get_first().type;
+    std::cout << " | Line : " << tokens.get_first().line;
+    std::cout << " | Scope : " << tokens.get_first().scope << std::endl;
     tokens.push(tokens.pop());
   }
 }
@@ -42,11 +45,7 @@ Queue tokenize(std::string &src)
       else if (word == ")") token = {word, t_right_parenthese, i_line, 1};
       else if (is_a_digit(word) == true) token = {word, t_num_literal, i_line, 1};
       else if (is_alpha(word) == true) token = {word, t_identifier, i_line, 1};
-      else 
-      {
-        std::string msg = "token non reconnu : " + word;
-        print_error(i_line, msg);
-      }
+      else print_error(i_line, "token '" + word + "' non reconnu");
       tokens.push(token);
     }
   }
