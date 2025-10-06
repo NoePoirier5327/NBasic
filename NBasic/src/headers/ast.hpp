@@ -49,6 +49,12 @@ struct IntNode : Node
   IntNode(int val) : value(val) {};
 };
 
+struct BoolNode : Node
+{
+  bool value;
+  BoolNode(bool val) : value(val) {};
+};
+
 // Noeud d'identifiant
 struct IdentifierNode : Node
 {

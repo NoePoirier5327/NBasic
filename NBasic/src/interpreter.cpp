@@ -59,14 +59,15 @@ void Interpreter::run_cli()
 
       // On traite l'arbre de syntaxe courant
       print_ast(this->program);
-      this->run_ast();
+
+      //print_debug("Interprétation du programme");
+      //this->run_ast();
       
       // On le détruit
       destroy_ast(this->program);
     }
   }
 	while (run);
-  //destroy_ast(this->program);
 }
 
 void Interpreter::run_file(std::string& file_name)

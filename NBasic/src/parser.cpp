@@ -6,10 +6,15 @@ ProgramNode Parser::parse_program(Queue& tokens, bool console)
   ProgramNode program;
   program.name = "cli";
   
-  while (this->tokens.is_empty() == false)
+  bool error = false;
+  while (this->tokens.is_empty() == false && error == false)
+  {
     program.body.push_back(this->parse_statement());
+    if (program.body.back() == nullptr) error = true; // On gère l'arrêt du programme lorsqu'on a une erreur
+  }
 
-  return program;
+  if (error == true) return ProgramNode(); // On gère l'arrêt du programme lorsqu'on a une erreur
+  return program; // On a pas d'erreur
 }
 
 Node* Parser::parse_statement()
@@ -21,18 +26,12 @@ Node* Parser::parse_statement()
         return this->parse_var_decl();
       return nullptr;
 
-    case t_num_literal:
-      // Pour l'instant on considère que tout les chiffres sont des entiers
-      return new IntNode(std::stoi(this->tokens.get_first().name));
-
     case t_identifier:
       return this->parse_assignment();
 
     default:
-    {
       print_error(this->tokens.get_first().line, "token non reconnu : " + this->tokens.get_first().name);
       return nullptr;
-    }
   }
 }
 
@@ -132,10 +131,48 @@ Node* Parser::parse_assignment()
   }
 
   // On traite la valeur de l'assignement en un noeud courant
-  Node* val = this->parse_additive();
+  Node* val = this->parse_bool_prim();
 
   // On renvoie un noeud d'assignation de variable
   return new AssignmentNode(var_name, assign_op, val, line);
+}
+
+Node* Parser::parse_bool_prim()
+{
+  if (this->tokens.is_empty() == true) return nullptr;
+  Node* left = this->parse_eval();
+  
+  while (this->tokens.get_first().name == "and" ||
+         this->tokens.get_first().name == "or" ||
+         this->tokens.get_first().name == "not")
+  {
+    std::string op = this->tokens.pop().name;
+    Node* right = this->parse_eval();
+    left = new BinaryOpNode(op, left, right);
+  }
+  
+  return left;
+}
+
+Node* Parser::parse_eval()
+{
+  if (this->tokens.is_empty() == true) return nullptr;
+
+  Node* left = this->parse_additive();
+
+  while (this->tokens.get_first().name == "==" ||
+         this->tokens.get_first().name == "!=" ||
+         this->tokens.get_first().name == ">=" ||
+         this->tokens.get_first().name == "<=" ||
+         this->tokens.get_first().name == ">" ||
+         this->tokens.get_first().name == "<")
+  {
+    std::string op = this->tokens.pop().name;
+    Node* right = this->parse_additive();
+    left = new BinaryOpNode(op, left, right);
+  }
+
+  return left;
 }
 
 Node* Parser::parse_additive()
@@ -177,44 +214,11 @@ Node* Parser::parse_prim_expr()
     case t_num_literal:
       return new IntNode(std::stoi(this->tokens.pop().name));
 
+    case t_bool_literal:
+      return new BoolNode(this->tokens.pop().name == "true");
+
     case t_identifier:
       return new IdentifierNode(this->tokens.pop().name);
-    
-    /*
-    case t_left_parenthese:
-    {
-      int line = this->tokens.pop().line; // !'('
-      bool not_found = true;
-      
-      // On cherche si on a bien une parenthèse fermante quelque part, si oui, on l'enlève
-      Queue temp;
-      while (this->tokens.is_empty() == false)
-      {
-        // On cherche si on trouve le token parenthese fermante qui correspond à celui qui ferme la parenthèse ouverte
-        if (this->tokens.get_first().type == t_right_parenthese && this->tokens.get_first().line == line && not_found == true)
-        {
-          //this->tokens.pop();
-          not_found = false;
-        }
-        else temp.push(this->tokens.pop());
-      }
-
-      if (not_found == true)
-      {
-        print_error(line, "parenthèse fermante manquante.");
-        return nullptr;
-      }
-
-      // On récupère le reste des tokens et on les remets dans la file courante
-      while (temp.is_empty() == false) this->tokens.push(temp.pop());
-
-      return this->parse_prim_expr();
-    }
-
-    case t_right_parenthese:
-      this->tokens.pop();
-      return this->parse_prim_expr();
-    */
     
     default:
       print_error(this->tokens.get_first().line, "expression '" + this->tokens.get_first().name + "' non reconnue.");

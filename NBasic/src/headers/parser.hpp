@@ -42,6 +42,18 @@ class Parser
     Node* parse_assignment();
     
     /**
+     * @brief Méthode permettant de gérer les opérateurs logiques élémentaire "or", "and" et "not"
+     * @return Node*, noeud d'instruction pour calculer la valeur
+    */
+    Node* parse_bool_prim();
+
+    /**
+     * @brief Méthode permettant de gérer les comparaisons de valeur logiques
+     * @return Node*, noeud d'instruction pour réaliser la comparaison
+    */
+    Node* parse_eval();
+    
+    /**
      * @brief Méthode traitant l'expression additive courante ('+' ou '-')
      * @return Node*, noeud d'instruction additif courant
     */

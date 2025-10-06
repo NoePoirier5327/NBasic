@@ -29,6 +29,7 @@ void destroy_ast_rec(Node * node)
     delete bin_op;              // puis enfin le parent
   }
   else if (auto* int_node = dynamic_cast<IntNode*>(node)) delete int_node;
+  else if (auto* bool_node = dynamic_cast<BoolNode*>(node)) delete bool_node;
   else if (auto* identifier = dynamic_cast<IdentifierNode*>(node)) delete identifier;
 }
 
@@ -65,6 +66,7 @@ void print_ast_rec(Node *ast, int indent)
     print_ast_rec(bin_op->right, indent+1);
   }
   else if (auto* int_node = dynamic_cast<IntNode*>(ast)) std::cout << int_node->value;
-  else if (auto* identifier = dynamic_cast<IdentifierNode*>(ast)) std::cout << identifier->name;
+  else if (auto* bool_node = dynamic_cast<BoolNode*>(ast)) std::cout << ((bool_node->value == true) ? "true" : "false");
+  else if (auto* identifier = dynamic_cast<IdentifierNode*>(ast)) std::cout << "var(" << identifier->name << ")";
   else std::cout << indentation << "noeud non reconnu" << std::endl;
 }

@@ -16,6 +16,7 @@ enum token_type
   t_equal,            // token d'attribution de valeur
   t_comma,            // token de virgule
   t_num_literal,      // valeur numérique en tant que telle
+  t_bool_literal,     // valeur booléenne en tant que telle
   t_left_parenthese,  // parenthese de gauche
   t_right_parenthese, // parenthese de droite
   t_bin_operator      // token d'opérateur binaire "+", "-", "%", "*", "/"

@@ -1,4 +1,5 @@
 #include "headers/token.hpp"
+#include "headers/global.hpp"
 
 void print_token(Queue &tokens)
 {
@@ -28,8 +29,13 @@ Queue tokenize(std::string &src)
 
     while (line_stream >> word)
     {
-      //if (is_valid_type(word) == true) tokens.push_back({word, t_var_type, 1});
-      if (is_key_word(word)) token = {word, t_key_word, i_line, 1};
+      if (word == "true" || word == "false") token = {word, t_bool_literal, i_line, 1};
+      else if (word == "and" || word == "or" || word == "not") token = {word, t_bin_operator, i_line, 1};
+      else if (word == "nand" || word == "nor") token = {word, t_bin_operator, i_line, 1};
+      else if (word == "xor" || word == "xnor") token = {word, t_bin_operator, i_line, 1};
+      else if (word == "==" || word == "<=" || word == ">=") token = {word, t_bin_operator, i_line, 1};
+      else if (word == ">" || word == "<" || word == "!=") token = {word, t_bin_operator, i_line, 1};
+      else if (is_key_word(word)) token = {word, t_key_word, i_line, 1};
       else if (word == "=") token = {word, t_equal, i_line, 1};
       else if (word == "+=") token = {word, t_equal, i_line, 1};
       else if (word == "-=") token = {word, t_equal, i_line, 1};
