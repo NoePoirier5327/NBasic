@@ -4,7 +4,7 @@
 int main(int argc, char *argv[])
 {
   Interpreter interpreter;
-
+  
   if (argc == 1) interpreter.run_cli();
   else
   {

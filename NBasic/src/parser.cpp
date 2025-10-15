@@ -1,4 +1,6 @@
 #include "headers/parser.hpp"
+#include "headers/ast.hpp"
+#include "headers/global.hpp"
 
 ProgramNode Parser::parse_program(Queue& tokens, bool console)
 {
@@ -178,14 +180,16 @@ Node* Parser::parse_eval()
 Node* Parser::parse_additive()
 {
   if (this->tokens.is_empty() == true) return nullptr;
-
-  Node* left = this->parse_multiplicative();
+  
+  std::string op = "";
+  BinaryOpNode* left = new BinaryOpNode(op, this->parse_multiplicative(), nullptr);
 
   while (this->tokens.get_first().name == "+" || this->tokens.get_first().name == "-")
   {
-    std::string op = this->tokens.pop().name;
-    Node* right = this->parse_multiplicative();
-    left = new BinaryOpNode(op, left, right);
+    //Node* right = this->parse_multiplicative();
+    left->name = this->tokens.pop().name;
+    left->right = this->parse_multiplicative();
+    left = new BinaryOpNode(left->name, left->left, left->right);
   }
 
   return left;
@@ -194,14 +198,18 @@ Node* Parser::parse_additive()
 Node* Parser::parse_multiplicative()
 {
   if (this->tokens.is_empty() == true) return nullptr;
-  Node* left = this->parse_prim_expr();
+
+  std::string op = "";
+  BinaryOpNode* left = new BinaryOpNode(op, this->parse_prim_expr(), nullptr);
 
   while (this->tokens.get_first().name == "*" || this->tokens.get_first().name == "/" || this->tokens.get_first().name == "%")
   {
-    std::string op = this->tokens.pop().name;
-    Node* right = this->parse_prim_expr();
-
-    left = new BinaryOpNode(op, left, right);
+    //op = this->tokens.pop().name;
+    //Node* right = this->parse_prim_expr();
+    
+    left->name = this->tokens.pop().name;
+    left->right = this->parse_prim_expr();
+    left = new BinaryOpNode(left->name, left->left, left->right);
   }
 
   return left;

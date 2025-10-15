@@ -60,8 +60,8 @@ void Interpreter::run_cli()
       // On traite l'arbre de syntaxe courant
       print_ast(this->program);
 
-      //print_debug("Interprétation du programme");
-      //this->run_ast();
+      print_debug("Interprétation du programme");
+      this->run_ast();
       
       // On le détruit
       destroy_ast(this->program);
@@ -130,52 +130,17 @@ void Interpreter::run_ast()
         print_error(assign->line, "la variable '" + assign->name + "' n'existe pas.");
         return;
       }
-
+      
       // si oui, on interpréte la suite
-      // Plusieurs possibilitées
-      // 1. La valeur à assigner est un nombre
-      else if (auto* val_int = dynamic_cast<IntNode*>(assign->value))
-      {
-        if (assign->assign_op == "=") this->vars_int[assign->name] = val_int->value;
-        else if (assign->assign_op == "+=") this->vars_int[assign->name] += val_int->value;
-        else if (assign->assign_op == "-=") this->vars_int[assign->name] -= val_int->value;
-        else if (assign->assign_op == "*=") this->vars_int[assign->name] *= val_int->value;
-        else if (assign->assign_op == "/=") this->vars_int[assign->name] /= val_int->value;
-
-        print_debug(assign->name + " = " + std::to_string(this->vars_int[assign->name]));
-      }
-      // 2. La valeur est associé à une autre variable
-      else if (auto* id = dynamic_cast<IdentifierNode*>(assign->value))
-      {
-        // On vérifie si la variable existe
-        if (is_in_map(this->vars_int, id->name) == false) 
-        {
-          print_error(assign->line, "la variable '" + id->name + "' n'existe pas.");
-          return;
-        }
-
-        // Si elle existe, on attribue sa valeur à notre variable courante
-        if (assign->assign_op == "=") this->vars_int[assign->name] = this->vars_int[id->name];
-        else if (assign->assign_op == "+=") this->vars_int[assign->name] += this->vars_int[id->name];
-        else if (assign->assign_op == "-=") this->vars_int[assign->name] -= this->vars_int[id->name];
-        else if (assign->assign_op == "*=") this->vars_int[assign->name] *= this->vars_int[id->name];
-        else if (assign->assign_op == "/=") this->vars_int[assign->name] /= this->vars_int[id->name];
-
-        print_debug(assign->name + " = " + std::to_string(this->vars_int[id->name]));
-      }
-      // 3. La valeur associé est un sous-arbre de calcul
-      else if (auto* bin_op = dynamic_cast<BinaryOpNode*>(assign->value))
-      {
-        int resultat = this->calculate(bin_op);
+      int resultat = this->calculate(assign->value);
         
-        if (assign->assign_op == "=") this->vars_int[assign->name] = resultat;
-        else if (assign->assign_op == "+=") this->vars_int[assign->name] += resultat;
-        else if (assign->assign_op == "-=") this->vars_int[assign->name] -= resultat;
-        else if (assign->assign_op == "*=") this->vars_int[assign->name] *= resultat;
-        else if (assign->assign_op == "/=") this->vars_int[assign->name] /= resultat;
+      if (assign->assign_op == "=") this->vars_int[assign->name] = resultat;
+      else if (assign->assign_op == "+=") this->vars_int[assign->name] += resultat;
+      else if (assign->assign_op == "-=") this->vars_int[assign->name] -= resultat;
+      else if (assign->assign_op == "*=") this->vars_int[assign->name] *= resultat;
+      else if (assign->assign_op == "/=") this->vars_int[assign->name] /= resultat;
 
-        print_debug(assign->name + " = " + std::to_string(this->vars_int[assign->name]));
-      }
+      print_debug(assign->name + " = " + std::to_string(this->vars_int[assign->name]));
     }
   }
 }
@@ -191,6 +156,7 @@ int Interpreter::calculate(Node* node)
     else if (bin_op->name == "/") return static_cast<int>(this->calculate(bin_op->left) / this->calculate(bin_op->right));
     else if (bin_op->name == "%") return static_cast<int>(this->calculate(bin_op->left) % this->calculate(bin_op->right));
     else if (bin_op->name == "+") return static_cast<int>(this->calculate(bin_op->left) + this->calculate(bin_op->right));
-    else return static_cast<int>(this->calculate(bin_op->left) - this->calculate(bin_op->right));
+    else if (bin_op->name == "-") return static_cast<int>(this->calculate(bin_op->left) - this->calculate(bin_op->right));
+    else return this->calculate(bin_op->left); // On est dans le cas ou le sous-arbre n'est qu'un nombre
   }
 }
