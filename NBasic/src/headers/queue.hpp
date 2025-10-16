@@ -13,7 +13,7 @@ class Queue
      * @brief Méthode permettant d'empiler un token dans la file courante
      * @param token: Token&, token à stocker
     */
-    void push(Token& token);
+    void push(Token token);
     
     /**
      * @brief Méthode d'accès et de supression au début de la file

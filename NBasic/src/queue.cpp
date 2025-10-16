@@ -1,6 +1,6 @@
 #include "headers/queue.hpp"
 
-void Queue::push(Token &token) { this->queue.push_back(token); }
+void Queue::push(Token token) { this->queue.push_back(token); }
 
 Token& Queue::pop()
 {

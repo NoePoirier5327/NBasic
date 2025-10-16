@@ -1,5 +1,6 @@
 #include "headers/interpreter.hpp"
 #include "headers/ast.hpp"
+#include "headers/global.hpp"
 
 //Interpreter::~Interpreter() { destroy_ast(this->ast); this->ast = nullptr; }
 
@@ -163,7 +164,13 @@ void Interpreter::run_ast()
 int Interpreter::calculate(Node* node)
 {
   if (auto * int_node = dynamic_cast<IntNode*>(node)) return int_node->value;
-  else if (auto * id = dynamic_cast<IdentifierNode*>(node)) return this->vars_int[id->name];
+  else if (auto * id = dynamic_cast<IdentifierNode*>(node))
+  {
+    if (is_in_map(this->vars_int, id->name)== true) return this->vars_int[id->name];
+    print_error(id->line, "la variable '" + id->name + "' n'existe pas.");
+    this->program = ProgramNode();
+    return 0;
+  }
   else // On sait qu'il ne peut y a voir que des identifiants, des entiers ou des opérateurs binaire
   {
     auto* bin_op = dynamic_cast<BinaryOpNode*>(node);

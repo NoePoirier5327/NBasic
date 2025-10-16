@@ -35,7 +35,7 @@ Node* Parser::parse_statement()
       return this->parse_function_call();
 
     case t_num_literal:
-      return this->parse_multiplicative();
+      return this->parse_additive();
 
     default:
       print_error(this->tokens.get_first().line, "token non reconnu : " + this->tokens.get_first().name);
@@ -246,7 +246,10 @@ Node* Parser::parse_prim_expr()
       return new BoolNode(this->tokens.pop().name == "true");
 
     case t_identifier:
-      return new IdentifierNode(this->tokens.pop().name);
+    {
+      Token temp = this->tokens.pop();
+      return new IdentifierNode(temp.name, temp.line);
+    }
     
     default:
       print_error(this->tokens.get_first().line, "expression '" + this->tokens.get_first().name + "' non reconnue.");

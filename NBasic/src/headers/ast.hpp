@@ -68,7 +68,8 @@ struct BoolNode : Node
 struct IdentifierNode : Node
 {
   std::string name;
-  IdentifierNode(std::string &n) : name(n) {};
+  int line;
+  IdentifierNode(std::string &n, int &line) : name(n), line(line) {};
 };
 
 /**
