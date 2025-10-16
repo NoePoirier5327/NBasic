@@ -11,7 +11,8 @@ bool is_key_word(std::string& word)
     {"real", true},
     {"boolean", true},
     {"string", true},
-    {"end", true}
+    {"end", true},
+    {"disp", true}
   };
 
   return key_words.find(word) != key_words.end(); // recherche de complexité O(log(n));

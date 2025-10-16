@@ -31,6 +31,11 @@ void destroy_ast_rec(Node * node)
   else if (auto* int_node = dynamic_cast<IntNode*>(node)) delete int_node;
   else if (auto* bool_node = dynamic_cast<BoolNode*>(node)) delete bool_node;
   else if (auto* identifier = dynamic_cast<IdentifierNode*>(node)) delete identifier;
+  else if (auto* fun_call = dynamic_cast<FunctionCallNode*>(node))
+  {
+    for (size_t i = 0; i < fun_call->args.size(); i++) destroy_ast_rec(fun_call->args[i]);
+    delete fun_call;
+  }
 }
 
 void print_ast(ProgramNode& program)
@@ -68,5 +73,16 @@ void print_ast_rec(Node *ast, int indent)
   else if (auto* int_node = dynamic_cast<IntNode*>(ast)) std::cout << int_node->value;
   else if (auto* bool_node = dynamic_cast<BoolNode*>(ast)) std::cout << ((bool_node->value == true) ? "true" : "false");
   else if (auto* identifier = dynamic_cast<IdentifierNode*>(ast)) std::cout << "var(" << identifier->name << ")";
+  else if (auto* fun_call = dynamic_cast<FunctionCallNode*>(ast))
+  {
+    std::cout << fun_call->name << "(";
+    for (size_t i = 0; i < fun_call->args.size() - 1; i++)
+    {
+      print_ast_rec(fun_call->args[i]);
+      std::cout << ", ";
+    }
+    print_ast_rec(fun_call->args[fun_call->args.size() - 1]);
+    std::cout << ")" << std::endl;
+  }
   else std::cout << indentation << "noeud non reconnu" << std::endl;
 }

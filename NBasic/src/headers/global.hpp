@@ -12,6 +12,7 @@ enum token_type
 {
   t_key_word,         // mot clé du langage
   t_identifier,       // type, fonction, class, enum, struct etc...
+  t_function_call,    // fonction du langage
   t_num_var,          // valeur numérique variable
   t_equal,            // token d'attribution de valeur
   t_comma,            // token de virgule
@@ -19,7 +20,7 @@ enum token_type
   t_bool_literal,     // valeur booléenne en tant que telle
   t_left_parenthese,  // parenthese de gauche
   t_right_parenthese, // parenthese de droite
-  t_bin_operator      // token d'opérateur binaire "+", "-", "%", "*", "/"
+  t_bin_operator      // token d'opérateur binaire "+", "-", "%", "*", "/" etc...
 };
 
 /**

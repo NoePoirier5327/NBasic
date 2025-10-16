@@ -42,6 +42,12 @@ class Parser
     Node* parse_assignment();
     
     /**
+     * @brief Méthode permettant de gérer l'utilisation de fonction dans le programme
+     * @return Node*, arbre d'instruction contenant la fonction à laquelle on accède et ses arguments
+    */
+    Node* parse_function_call();
+    
+    /**
      * @brief Méthode permettant de gérer les opérateurs logiques élémentaire "or", "and" et "not"
      * @return Node*, noeud d'instruction pour calculer la valeur
     */

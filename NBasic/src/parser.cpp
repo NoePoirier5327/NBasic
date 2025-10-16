@@ -31,6 +31,12 @@ Node* Parser::parse_statement()
     case t_identifier:
       return this->parse_assignment();
 
+    case t_function_call:
+      return this->parse_function_call();
+
+    case t_num_literal:
+      return this->parse_multiplicative();
+
     default:
       print_error(this->tokens.get_first().line, "token non reconnu : " + this->tokens.get_first().name);
       return nullptr;
@@ -93,6 +99,20 @@ Node* Parser::parse_var_decl()
   std::string var_type = this->tokens.pop().name;
 
   return new VarDeclNode(var_name, var_type, line);
+}
+
+Node* Parser::parse_function_call()
+{
+  int line = this->tokens.get_first().line;
+  std::string func_name = this->tokens.pop().name;
+  std::vector<Node*> args;
+  
+  // On récupère tout les arguments de la fonction qui est appelé
+  while (this->tokens.get_size() != 0 && line == this->tokens.get_first().line)
+    args.push_back(this->parse_additive());
+  
+  // On retourne l'appelle de la fonction 
+  return new FunctionCallNode(func_name, args, line);
 }
 
 Node* Parser::parse_assignment()

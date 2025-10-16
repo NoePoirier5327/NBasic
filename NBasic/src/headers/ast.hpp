@@ -33,6 +33,15 @@ struct AssignmentNode : Node
   AssignmentNode(std::string &n, std::string &a, Node* val, int &l) : name(n), assign_op(a), value(val), line(l) {};
 };
 
+struct FunctionCallNode : Node
+{
+  std::string name;
+  std::vector<Node*> args;
+  int line;
+
+  FunctionCallNode(std::string &n, std::vector<Node*> &a, int &l) : name(n), args(a), line(l) {};
+};
+
 // Noeud d'opérateur binaire
 struct BinaryOpNode : Node
 {

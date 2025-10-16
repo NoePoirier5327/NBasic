@@ -1,4 +1,5 @@
 #include "headers/interpreter.hpp"
+#include "headers/ast.hpp"
 
 //Interpreter::~Interpreter() { destroy_ast(this->ast); this->ast = nullptr; }
 
@@ -51,16 +52,16 @@ void Interpreter::run_cli()
     }
     else
     {
-      print_debug("Tokenization du programme.");
+      //print_debug("Tokenization du programme.");
       this->tokens = tokenize(src); // On découpe l'entrée en token
       
-      print_debug("Analyse syntaxique du programme.");
+      //print_debug("Analyse syntaxique du programme.");
       this->program = this->parser.parse_program(this->tokens);
 
       // On traite l'arbre de syntaxe courant
-      print_ast(this->program);
+      //print_ast(this->program);
 
-      print_debug("Interprétation du programme");
+      //print_debug("Interprétation du programme");
       this->run_ast();
       
       // On le détruit
@@ -140,7 +141,21 @@ void Interpreter::run_ast()
       else if (assign->assign_op == "*=") this->vars_int[assign->name] *= resultat;
       else if (assign->assign_op == "/=") this->vars_int[assign->name] /= resultat;
 
-      print_debug(assign->name + " = " + std::to_string(this->vars_int[assign->name]));
+      //print_debug(assign->name + " = " + std::to_string(this->vars_int[assign->name]));
+    }
+    else if (auto* fun_call = dynamic_cast<FunctionCallNode*>(this->program.body[i]))
+    {
+      // Pour l'instant on ne gère que l'appel aux fonctions disp et input
+      if (fun_call->name == "disp")
+      {
+        if (fun_call->args.size() == 0 || fun_call->args.size() > 1)
+        {
+          print_error(fun_call->line, "la fonction 'disp' n'attend qu'un seul argument.");
+          return;
+        }
+
+        std::cout << this->calculate(fun_call->args[0]) << std::endl;
+      }
     }
   }
 }
