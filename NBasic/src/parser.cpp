@@ -109,7 +109,7 @@ Node* Parser::parse_function_call()
   
   // On récupère tout les arguments de la fonction qui est appelé
   while (this->tokens.get_size() != 0 && line == this->tokens.get_first().line)
-    args.push_back(this->parse_additive());
+    args.push_back(this->parse_bool_prim());
   
   // On retourne l'appelle de la fonction 
   return new FunctionCallNode(func_name, args, line);
@@ -162,15 +162,17 @@ Node* Parser::parse_assignment()
 Node* Parser::parse_bool_prim()
 {
   if (this->tokens.is_empty() == true) return nullptr;
-  Node* left = this->parse_eval();
+
+  std::string op = "";
+  BinaryOpNode* left = new BinaryOpNode(op, this->parse_eval(), nullptr);
   
   while (this->tokens.get_first().name == "and" ||
          this->tokens.get_first().name == "or" ||
          this->tokens.get_first().name == "not")
   {
-    std::string op = this->tokens.pop().name;
-    Node* right = this->parse_eval();
-    left = new BinaryOpNode(op, left, right);
+    left->name = this->tokens.pop().name;
+    left->right = this->parse_eval();
+    left = new BinaryOpNode(left->name, left->left, left->right);
   }
   
   return left;
@@ -179,8 +181,9 @@ Node* Parser::parse_bool_prim()
 Node* Parser::parse_eval()
 {
   if (this->tokens.is_empty() == true) return nullptr;
-
-  Node* left = this->parse_additive();
+  
+  std::string op = "";
+  BinaryOpNode* left = new BinaryOpNode(op, this->parse_additive(), nullptr);
 
   while (this->tokens.get_first().name == "==" ||
          this->tokens.get_first().name == "!=" ||
@@ -189,9 +192,9 @@ Node* Parser::parse_eval()
          this->tokens.get_first().name == ">" ||
          this->tokens.get_first().name == "<")
   {
-    std::string op = this->tokens.pop().name;
-    Node* right = this->parse_additive();
-    left = new BinaryOpNode(op, left, right);
+    left->name = this->tokens.pop().name;
+    left->right = this->parse_additive();
+    left = new BinaryOpNode(left->name, left->left, left->right);
   }
 
   return left;
