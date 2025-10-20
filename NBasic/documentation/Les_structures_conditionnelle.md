@@ -10,7 +10,7 @@ else
 	<expression>
 end
 ```
-
+Tableau de syntaxe des opérateurs de comparaison :
 | Syntaxe   | Significations                                                          |
 | --------- | ----------------------------------------------------------------------- |
 | `a == b`  | a est égal à b                                                          |
@@ -22,6 +22,7 @@ end
 | `!a`      | non a, ne fonctionne qu'avec des expressions booléennes                 |
 | `a and b` | a et b, ne fonctionne qu'avec des expressions booléennes                |
 | `a or b`  | a ou b, ne fonctionne qu'avec des expressions booléennes                |
+
 Exemple:
 ```NBasic
 import console
