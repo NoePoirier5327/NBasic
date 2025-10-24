@@ -164,7 +164,8 @@ Node* Parser::parse_bool_prim()
   if (this->tokens.is_empty() == true) return nullptr;
 
   std::string op = "";
-  BinaryOpNode* left = new BinaryOpNode(op, this->parse_eval(), nullptr);
+  int line = this->tokens.get_first().line;
+  BinaryOpNode* left = new BinaryOpNode(op, this->parse_eval(), nullptr, line);
   
   while (this->tokens.get_first().name == "and" ||
          this->tokens.get_first().name == "or" ||
@@ -172,7 +173,7 @@ Node* Parser::parse_bool_prim()
   {
     left->name = this->tokens.pop().name;
     left->right = this->parse_eval();
-    left = new BinaryOpNode(left->name, left->left, left->right);
+    left = new BinaryOpNode(left->name, left->left, left->right, line);
   }
   
   return left;
@@ -183,7 +184,8 @@ Node* Parser::parse_eval()
   if (this->tokens.is_empty() == true) return nullptr;
   
   std::string op = "";
-  BinaryOpNode* left = new BinaryOpNode(op, this->parse_additive(), nullptr);
+  int line = this->tokens.get_first().line;
+  BinaryOpNode* left = new BinaryOpNode(op, this->parse_additive(), nullptr, line);
 
   while (this->tokens.get_first().name == "==" ||
          this->tokens.get_first().name == "!=" ||
@@ -194,7 +196,7 @@ Node* Parser::parse_eval()
   {
     left->name = this->tokens.pop().name;
     left->right = this->parse_additive();
-    left = new BinaryOpNode(left->name, left->left, left->right);
+    left = new BinaryOpNode(left->name, left->left, left->right, line);
   }
 
   return left;
@@ -205,14 +207,15 @@ Node* Parser::parse_additive()
   if (this->tokens.is_empty() == true) return nullptr;
   
   std::string op = "";
-  BinaryOpNode* left = new BinaryOpNode(op, this->parse_multiplicative(), nullptr);
+  int line = this->tokens.get_first().line;
+  BinaryOpNode* left = new BinaryOpNode(op, this->parse_multiplicative(), nullptr, line);
 
   while (this->tokens.get_first().name == "+" || this->tokens.get_first().name == "-")
   {
     //Node* right = this->parse_multiplicative();
     left->name = this->tokens.pop().name;
     left->right = this->parse_multiplicative();
-    left = new BinaryOpNode(left->name, left->left, left->right);
+    left = new BinaryOpNode(left->name, left->left, left->right, line);
   }
 
   return left;
@@ -223,7 +226,8 @@ Node* Parser::parse_multiplicative()
   if (this->tokens.is_empty() == true) return nullptr;
 
   std::string op = "";
-  BinaryOpNode* left = new BinaryOpNode(op, this->parse_prim_expr(), nullptr);
+  int line = this->tokens.get_first().line;
+  BinaryOpNode* left = new BinaryOpNode(op, this->parse_prim_expr(), nullptr, line);
 
   while (this->tokens.get_first().name == "*" || this->tokens.get_first().name == "/" || this->tokens.get_first().name == "%")
   {
@@ -232,7 +236,7 @@ Node* Parser::parse_multiplicative()
     
     left->name = this->tokens.pop().name;
     left->right = this->parse_prim_expr();
-    left = new BinaryOpNode(left->name, left->left, left->right);
+    left = new BinaryOpNode(left->name, left->left, left->right, line);
   }
 
   return left;

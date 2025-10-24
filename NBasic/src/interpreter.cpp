@@ -78,7 +78,7 @@ void Interpreter::run_file(std::string& file_name)
   Queue tokens = tokenize(src);
   this->program = this->parser.parse_program(tokens);
 
-  print_ast(this->program);
+  //print_ast(this->program);
   this->run_ast();
 
   destroy_ast(this->program);
@@ -117,7 +117,16 @@ void Interpreter::run_ast()
     if (auto* var_decl = dynamic_cast<VarDeclNode*>(this->program.body[i]))
     {
       // On vérifie si la variable existe déjà en mémoire, si oui, on affiche une erreur sinon on la déclare
-      if (is_in_map(this->vars_int, var_decl->name) == false) this->vars_int.insert({var_decl->name, 0});
+      if (is_in_map(this->vars_int, var_decl->name) == false)
+      {
+        int val;
+        this->vars_bool.insert({var_decl->name, val});
+      }
+      else if (is_in_map(this->vars_bool, var_decl->name) == false)
+      {
+        bool val;
+        this->vars_bool.insert({var_decl->name, val});
+      }
       else
       {
         print_error(var_decl->line, "la variable '" + var_decl->name + "' ne peut pas être déclarer une nouvelle fois.");
@@ -126,23 +135,28 @@ void Interpreter::run_ast()
     }
     else if (auto* assign = dynamic_cast<AssignmentNode*>(this->program.body[i]))
     {
-      // On vérifie si la variable courante existe, si non -> erreur
-      if (is_in_map(this->vars_int, assign->name) == false)
+      // On vérifie si la variable courante est entière, si oui, on l'interprète
+      if (is_in_map(this->vars_int, assign->name) == true)
+      {
+        int resultat = this->calculate(assign->value);
+
+        if (assign->assign_op == "=") this->vars_int[assign->name] = resultat;
+        else if (assign->assign_op == "+=") this->vars_int[assign->name] += resultat;
+        else if (assign->assign_op == "-=") this->vars_int[assign->name] -= resultat;
+        else if (assign->assign_op == "*=") this->vars_int[assign->name] *= resultat;
+        else if (assign->assign_op == "/=") this->vars_int[assign->name] /= resultat;
+      }
+      // On vérifie si la variable courante est booléenne, si oui, on l'interprète
+      else if (is_in_map(this->vars_bool, assign->name) == true)
+      {
+        this->vars_bool[assign->name] = this->evaluate(assign->value);
+      }
+      // Si elle n'existe nulle part, on lève une erreur
+      else
       {
         print_error(assign->line, "la variable '" + assign->name + "' n'existe pas.");
         return;
       }
-      
-      // si oui, on interpréte la suite
-      int resultat = this->calculate(assign->value);
-        
-      if (assign->assign_op == "=") this->vars_int[assign->name] = resultat;
-      else if (assign->assign_op == "+=") this->vars_int[assign->name] += resultat;
-      else if (assign->assign_op == "-=") this->vars_int[assign->name] -= resultat;
-      else if (assign->assign_op == "*=") this->vars_int[assign->name] *= resultat;
-      else if (assign->assign_op == "/=") this->vars_int[assign->name] /= resultat;
-
-      //print_debug(assign->name + " = " + std::to_string(this->vars_int[assign->name]));
     }
     else if (auto* fun_call = dynamic_cast<FunctionCallNode*>(this->program.body[i]))
     {
@@ -155,7 +169,7 @@ void Interpreter::run_ast()
           return;
         }
 
-        std::cout << this->calculate(fun_call->args[0]) << std::endl;
+        std::cout << this->evaluate(fun_call->args[0]) << std::endl;
       }
     }
   }
@@ -167,18 +181,63 @@ int Interpreter::calculate(Node* node)
   else if (auto * id = dynamic_cast<IdentifierNode*>(node))
   {
     if (is_in_map(this->vars_int, id->name)== true) return this->vars_int[id->name];
-    print_error(id->line, "la variable '" + id->name + "' n'existe pas.");
+    print_error(id->line, "la variable '" + id->name + "' n'existe pas ou n'est pas de type entier.");
     this->program = ProgramNode();
     return 0;
-  }
-  else // On sait qu'il ne peut y a voir que des identifiants, des entiers ou des opérateurs binaire
+  } // On sait qu'il ne peut y a voir que des identifiants, des entiers ou des opérateurs binaire
+  else if (auto* bin_op = dynamic_cast<BinaryOpNode*>(node))
   {
-    auto* bin_op = dynamic_cast<BinaryOpNode*>(node);
     if (bin_op->name == "*") return static_cast<int>(this->calculate(bin_op->left) * this->calculate(bin_op->right));
     else if (bin_op->name == "/") return static_cast<int>(this->calculate(bin_op->left) / this->calculate(bin_op->right));
     else if (bin_op->name == "%") return static_cast<int>(this->calculate(bin_op->left) % this->calculate(bin_op->right));
     else if (bin_op->name == "+") return static_cast<int>(this->calculate(bin_op->left) + this->calculate(bin_op->right));
     else if (bin_op->name == "-") return static_cast<int>(this->calculate(bin_op->left) - this->calculate(bin_op->right));
-    else return this->calculate(bin_op->left); // On est dans le cas ou le sous-arbre n'est qu'un nombre
+    else if (bin_op->name == "") return this->calculate(bin_op->left); // On est dans le cas ou le sous-arbre n'est qu'un nombre
+    
+    print_error(bin_op->line, "l'opération '" + bin_op->name + "' n'est pas possible dans ce contexte.");
+    this->program = ProgramNode();
+    return -1;
   }
+
+  return -1;
+}
+
+bool Interpreter::evaluate(Node* node)
+{
+  if (auto* bool_val = dynamic_cast<BoolNode*>(node)) return bool_val->value;
+  else if (auto* id = dynamic_cast<IdentifierNode*>(node))
+  {
+    // Si la variable existe en mémoire, on renvoie sa valeur
+    if (is_in_map(this->vars_bool, id->name) == true)
+      return this->vars_bool[id->name];
+
+    // Sinon, on lève une erreur
+    print_error(id->line, "la variable '" + id->name + "' n'existe pas ou n'est pas de type booléen.");
+    this->program = ProgramNode();
+    return true;
+  }
+  else if (auto * op = dynamic_cast<BinaryOpNode*>(node))
+  {
+    // On évalue deux valeurs numériques entre elles
+    if (op->name == "==") return this->calculate(op->left) == this->calculate(op->right);
+    else if (op->name == "!=") return this->calculate(op->left) != this->calculate(op->right);
+    else if (op->name == ">=") return this->calculate(op->left) >= this->calculate(op->right);
+    else if (op->name == "<=") return this->calculate(op->left) <= this->calculate(op->right);
+    else if (op->name == ">") return this->calculate(op->left) > this->calculate(op->right);
+    else if (op->name == "<") return this->calculate(op->left) < this->calculate(op->right);
+
+    // On évalue deux booléens entre eux
+    else if (op->name == "and") return this->evaluate(op->left) && this->evaluate(op->right);
+    else if (op->name == "or") return this->evaluate(op->left) || this->evaluate(op->right);
+    else if (op->name == "not") return !this->evaluate(op->left);
+
+    // On est à la fin de l'arbre
+    else if (op->name == "") return this->evaluate(op->left);
+
+    print_error(op->line, "l'opération '" + op->name + "' n'est pas disponible dans ce contexte.");
+    this->program = ProgramNode();
+    return false;
+  }
+  
+  return false;
 }

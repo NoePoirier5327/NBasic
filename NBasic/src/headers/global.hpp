@@ -75,7 +75,8 @@ bool is_alpha(std::string& word);
  * @param key: std::string&, clé à chercher dans le dictionnaire
  * @return bool, true si la valeur associé à la clé est trouvé, false sinon
 */
-bool is_in_map(std::map<std::string, int>& vars, std::string& key);
+template <typename T>
+bool is_in_map(std::map<std::string, T>& vars, std::string& key) { return vars.find(key) != vars.end(); }
 
 /**
  * @brief Fonction permettant d'afficher un message d'erreur

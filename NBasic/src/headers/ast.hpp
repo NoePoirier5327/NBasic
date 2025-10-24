@@ -48,7 +48,8 @@ struct BinaryOpNode : Node
   std::string name;
   Node* left;
   Node* right;
-  BinaryOpNode(std::string &n, Node* l, Node* r) : name(n), left(l), right(r) {};
+  int line;
+  BinaryOpNode(std::string &n, Node* l, Node* r, int& line) : name(n), left(l), right(r), line(line) {};
 };
 
 // Noeud d'entier

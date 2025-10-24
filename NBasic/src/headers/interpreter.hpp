@@ -47,9 +47,17 @@ class Interpreter
      * @return int, résultat du calcul sous-forme entière pour l'instant
     */
     int calculate(Node* node);
+    
+    /**
+     * @brief Méthode permettant de traiter l'arbre de syntaxe réalisant des opérations sur les booléens
+     * @param node: Node*, sous-arbre courant sur lequel réaliser le traitement
+     * @return bool, résultat de l'évaluation booléenne
+    */
+    bool evaluate(Node* node);
 
     ProgramNode program;
     Queue tokens;
     Parser parser;
     std::map<std::string, int> vars_int;
+    std::map<std::string, bool> vars_bool;
 };

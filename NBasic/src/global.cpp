@@ -45,7 +45,7 @@ bool is_alpha(std::string& word)
   return false;
 }
 
-bool is_in_map(std::map<std::string, int>& vars, std::string& key) { return vars.find(key) != vars.end(); }
+//bool is_in_map(std::map<std::string, int>& vars, std::string& key) { return vars.find(key) != vars.end(); }
 
 void print_error(int &line, std::string msg)
 {

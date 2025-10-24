@@ -14,7 +14,7 @@ all: $(OBJ)
 	$(CXX) $(DEBUGFLAGS) -o $(APP) $^ $(LDFLAGS)
 
 $(OBJDIR)/%.o: $(SRCDIR)/%.cpp
-	$(CXX) $(CXXFLAGS) -c $(INCLDFLAGS) $< -o $@
+	$(CXX) $(CXXFLAGS) $(DEBUGFLAGS) -c $(INCLDFLAGS) $< -o $@
 
 run: 
 	$(APP)
