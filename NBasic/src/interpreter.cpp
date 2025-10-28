@@ -1,6 +1,4 @@
 #include "headers/interpreter.hpp"
-#include "headers/ast.hpp"
-#include "headers/global.hpp"
 
 //Interpreter::~Interpreter() { destroy_ast(this->ast); this->ast = nullptr; }
 
@@ -120,7 +118,7 @@ void Interpreter::run_ast()
       if (is_in_map(this->vars_int, var_decl->name) == false)
       {
         int val;
-        this->vars_bool.insert({var_decl->name, val});
+        this->vars_int.insert({var_decl->name, val});
       }
       else if (is_in_map(this->vars_bool, var_decl->name) == false)
       {
@@ -148,9 +146,7 @@ void Interpreter::run_ast()
       }
       // On vérifie si la variable courante est booléenne, si oui, on l'interprète
       else if (is_in_map(this->vars_bool, assign->name) == true)
-      {
         this->vars_bool[assign->name] = this->evaluate(assign->value);
-      }
       // Si elle n'existe nulle part, on lève une erreur
       else
       {
@@ -180,21 +176,25 @@ int Interpreter::calculate(Node* node)
   if (auto * int_node = dynamic_cast<IntNode*>(node)) return int_node->value;
   else if (auto * id = dynamic_cast<IdentifierNode*>(node))
   {
-    if (is_in_map(this->vars_int, id->name)== true) return this->vars_int[id->name];
+    // Si la variable existe, on retourne sa valeur
+    if (is_in_map(this->vars_int, id->name) == true)
+      return this->vars_int[id->name];
+
+    // Sinon, on lève une erreur
     print_error(id->line, "la variable '" + id->name + "' n'existe pas ou n'est pas de type entier.");
     this->program = ProgramNode();
     return 0;
   } // On sait qu'il ne peut y a voir que des identifiants, des entiers ou des opérateurs binaire
-  else if (auto* bin_op = dynamic_cast<BinaryOpNode*>(node))
+  else if (auto* op = dynamic_cast<BinaryOpNode*>(node))
   {
-    if (bin_op->name == "*") return static_cast<int>(this->calculate(bin_op->left) * this->calculate(bin_op->right));
-    else if (bin_op->name == "/") return static_cast<int>(this->calculate(bin_op->left) / this->calculate(bin_op->right));
-    else if (bin_op->name == "%") return static_cast<int>(this->calculate(bin_op->left) % this->calculate(bin_op->right));
-    else if (bin_op->name == "+") return static_cast<int>(this->calculate(bin_op->left) + this->calculate(bin_op->right));
-    else if (bin_op->name == "-") return static_cast<int>(this->calculate(bin_op->left) - this->calculate(bin_op->right));
-    else if (bin_op->name == "") return this->calculate(bin_op->left); // On est dans le cas ou le sous-arbre n'est qu'un nombre
+    if (op->name == "*") return static_cast<int>(this->calculate(op->left) * this->calculate(op->right));
+    else if (op->name == "/") return static_cast<int>(this->calculate(op->left) / this->calculate(op->right));
+    else if (op->name == "%") return static_cast<int>(this->calculate(op->left) % this->calculate(op->right));
+    else if (op->name == "+") return static_cast<int>(this->calculate(op->left) + this->calculate(op->right));
+    else if (op->name == "-") return static_cast<int>(this->calculate(op->left) - this->calculate(op->right));
+    else if (op->name == "") return this->calculate(op->left); // On est dans le cas ou le sous-arbre n'est qu'un nombre
     
-    print_error(bin_op->line, "l'opération '" + bin_op->name + "' n'est pas possible dans ce contexte.");
+    print_error(op->line, "l'opération '" + op->name + "' n'est pas possible dans ce contexte.");
     this->program = ProgramNode();
     return -1;
   }
