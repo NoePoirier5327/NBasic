@@ -16,7 +16,6 @@ Token& Queue::pop()
 }
 
 Token& Queue::get_first() { return this->queue[0]; }
-
+Token& Queue::get_next() { return this->queue[1]; }
 bool Queue::is_empty() { return this->queue.empty(); }
-
 int Queue::get_size() { return (int)(this->queue.size()); }

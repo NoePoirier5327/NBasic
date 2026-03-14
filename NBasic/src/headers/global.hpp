@@ -13,6 +13,7 @@ enum token_type
   t_key_word,         // mot clé du langage
   t_identifier,       // type, fonction, class, enum, struct etc...
   t_function_call,    // fonction du langage
+  t_condition,        // noeud de condition
   t_num_var,          // valeur numérique variable
   t_equal,            // token d'attribution de valeur
   t_comma,            // token de virgule

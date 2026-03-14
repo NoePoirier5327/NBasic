@@ -35,6 +35,7 @@ Queue tokenize(std::string &src)
       else if (word == "xor" || word == "xnor") tokens.push({word, t_bin_operator, i_line, 1});
       else if (word == "==" || word == "<=" || word == ">=") tokens.push({word, t_bin_operator, i_line, 1});
       else if (word == ">" || word == "<" || word == "!=") tokens.push({word, t_bin_operator, i_line, 1});
+      else if (word == "if" || word == "then" || word == "else") tokens.push({word, t_condition, i_line, 1});
       else if (word == "disp" || word == "input") tokens.push({word, t_function_call, i_line, 1});
       else if (is_key_word(word)) tokens.push({word, t_key_word, i_line, 1});
       else if (word == "=") tokens.push({word, t_equal, i_line, 1});

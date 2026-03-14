@@ -28,6 +28,12 @@ class Queue
     Token& get_first();
     
     /**
+     * @brief Méthode permettant de récupérer le prochain token sur la liste
+     * @return Token&, prochain token sur la liste
+    */
+    Token& get_next();
+    
+    /**
      * @brief Méthode vérifiant si la file est vide ou non
      * @return bool, si true, la file est vide, sinon non
     */

@@ -12,7 +12,9 @@ bool is_key_word(std::string& word)
     {"boolean", true},
     {"string", true},
     {"end", true},
-    {"disp", true}
+    {"disp", true},
+    {"if", true},
+    {"then", true}
   };
 
   return key_words.find(word) != key_words.end(); // recherche de complexité O(log(n));
@@ -50,7 +52,7 @@ bool is_alpha(std::string& word)
 void print_error(int &line, std::string msg)
 {
   //throw std::runtime_error("[ERREUR] : l " + std::to_string(line) + " -> " + msg + "\n");
-  std::cout << "[ERREUR] : l " << line << " -> " << msg << std::endl;
+  std::cout << "[ERREUR] : ligne " << line << " -> " << msg << std::endl;
 }
 
 void print_debug(std::string msg) { std::cout << "[DEBUG] : " << msg << std::endl; }

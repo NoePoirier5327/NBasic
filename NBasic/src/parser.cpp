@@ -1,6 +1,5 @@
 #include "headers/parser.hpp"
 #include "headers/ast.hpp"
-#include "headers/global.hpp"
 
 ProgramNode Parser::parse_program(Queue& tokens, bool console)
 {
@@ -33,6 +32,9 @@ Node* Parser::parse_statement()
 
     case t_function_call:
       return this->parse_function_call();
+
+    case t_condition:
+      return this->parse_condition();
 
     case t_num_literal:
       return this->parse_additive();
@@ -115,6 +117,41 @@ Node* Parser::parse_function_call()
   return new FunctionCallNode(func_name, args, line);
 }
 
+ConditionNode* Parser::parse_condition()
+{
+  ConditionNode* condition;
+  
+  // Si on a pas de "if" en entrée de la fonction, on lève une erreur parce que on est pas censé en avoir ici
+  if (this->tokens.get_first().name != "if")
+  {
+    Token temp = this->tokens.get_first();
+    print_error(temp.line, "token de condition '" + temp.name + "' inattendu dans ce contexte.");
+    return nullptr;
+  }
+
+  this->tokens.pop(); // "if"
+
+  // On récupère l'expression booléenne de la condition
+  condition->condition = this->parse_bool_prim();
+
+  // Si on a pas de "then", on lève une erreur
+  if (this->tokens.get_first().name != "then")
+  {
+    Token temp = this->tokens.get_first();
+    print_error(temp.line, "le token 'then' est attendu pour terminer une condition.");
+    return nullptr;
+  }
+
+  // On récupère le contenu de la condition
+  bool fail = false;
+  while (fail == false)
+  {
+    condition->main_statement.push_back(this->parse_statement());
+  }
+
+  return condition;
+}
+
 Node* Parser::parse_assignment()
 {
   // On empèche les débordements mémoire
@@ -159,7 +196,7 @@ Node* Parser::parse_assignment()
   return new AssignmentNode(var_name, assign_op, val, line);
 }
 
-Node* Parser::parse_bool_prim()
+BinaryOpNode* Parser::parse_bool_prim()
 {
   if (this->tokens.is_empty() == true) return nullptr;
 

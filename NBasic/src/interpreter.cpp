@@ -1,7 +1,5 @@
 #include "headers/interpreter.hpp"
 
-//Interpreter::~Interpreter() { destroy_ast(this->ast); this->ast = nullptr; }
-
 void Interpreter::run_cli()
 {
   std::string src = "";

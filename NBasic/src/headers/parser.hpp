@@ -8,12 +8,7 @@
 */
 class Parser
 {
-  public:
-    /**
-     * @brief Constructeur de la classe
-    */
-    //Parser();
-    
+  public:    
     /**
      * @brief Méthode permettant de créer l'arbre contenant l'entièreté du programme à éxécuter
      * @param tokens: Queue&, file de tokens à traiter
@@ -46,12 +41,18 @@ class Parser
      * @return Node*, arbre d'instruction contenant la fonction à laquelle on accède et ses arguments
     */
     Node* parse_function_call();
+
+    /**
+     * @brief Méthode permettant de gérer l'utilisation des conditions dans le programme
+     * @return ConditionNode*, noeud représentant une condition dans le programme
+    */
+    ConditionNode* parse_condition();
     
     /**
      * @brief Méthode permettant de gérer les opérateurs logiques élémentaire "or", "and" et "not"
      * @return Node*, noeud d'instruction pour calculer la valeur
     */
-    Node* parse_bool_prim();
+    BinaryOpNode* parse_bool_prim();
 
     /**
      * @brief Méthode permettant de gérer les comparaisons de valeur logiques

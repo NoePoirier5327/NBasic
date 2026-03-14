@@ -73,6 +73,21 @@ struct IdentifierNode : Node
   IdentifierNode(std::string &n, int &line) : name(n), line(line) {};
 };
 
+// Noeud de condition
+struct ConditionNode : Node
+{
+  BinaryOpNode* condition; // Condition du bloc
+
+  // Code à exécuter par le bloc
+  std::vector<Node*> main_statement;
+  std::vector<Node*> else_statement;
+  
+  // Correspond aux blocks "else if"
+  //std::vector<ConditionNode*> other_statements;
+
+  ConditionNode() {};
+};
+
 /**
  * @brief Fonction chargé de dé allouer la mémoire prise par l'arbre de syntaxe courant
  * @param program: ProgramNode&, arbre de syntaxe du programme courant

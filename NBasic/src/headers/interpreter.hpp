@@ -11,12 +11,7 @@
 */
 class Interpreter
 {
-  public:
-    /**
-     * @brief Constructeur de l'interpréteur
-    */
-    //Interpreter();
-    
+  public:    
     /**
      * @brief Méthode permettant de lancer l'interface en ligne de commande de l'interpréteur
     */

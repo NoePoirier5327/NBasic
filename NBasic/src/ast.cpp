@@ -1,4 +1,5 @@
 #include "headers/ast.hpp"
+#include <iterator>
 
 void destroy_ast(ProgramNode& program)
 {
@@ -35,6 +36,13 @@ void destroy_ast_rec(Node * node)
   {
     for (size_t i = 0; i < fun_call->args.size(); i++) destroy_ast_rec(fun_call->args[i]);
     delete fun_call;
+  }
+  else if (auto* condition = dynamic_cast<ConditionNode*>(node))
+  {
+    delete condition->condition;
+
+    for (auto* statement : condition->main_statement) delete statement;
+    for (auto* statement : condition->else_statement) delete statement;
   }
 }
 
@@ -83,6 +91,27 @@ void print_ast_rec(Node *ast, int indent)
     }
     print_ast_rec(fun_call->args[fun_call->args.size() - 1]);
     std::cout << ")" << std::endl;
+  }
+  else if (auto* condition = dynamic_cast<ConditionNode*>(ast))
+  {
+    std::cout << "if ";
+    print_ast_rec(condition->condition);
+    std::cout << " then" << std::endl;
+
+    for (auto* statement : condition->main_statement)
+      print_ast_rec(statement);
+
+    if (condition->else_statement.size() == 0)
+      std::cout << "end if" << std::endl;
+    else
+    {
+      std::cout << "else" << std::endl;
+
+      for (auto* statement : condition->else_statement)
+        print_ast_rec(statement);
+
+      std::cout << "end if" << std::endl;
+    }
   }
   else std::cout << indentation << "noeud non reconnu" << std::endl;
 }
