@@ -1,4 +1,4 @@
-#include "headers/queue.hpp"
+#include "queue.hpp"
 
 void Queue::push(Token token) { this->queue.push_back(token); }
 

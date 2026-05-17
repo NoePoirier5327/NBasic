@@ -1,4 +1,4 @@
-#include "headers/global.hpp"
+#include "global.hpp"
 
 int to_dec(std::string& input) { return (int)(static_cast<unsigned char>(input[0])); }
 

@@ -1,4 +1,4 @@
-#include "headers/ast.hpp"
+#include "ast.hpp"
 #include <iterator>
 
 void destroy_ast(ProgramNode& program)

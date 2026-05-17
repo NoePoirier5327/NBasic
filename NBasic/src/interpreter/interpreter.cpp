@@ -1,4 +1,4 @@
-#include "headers/interpreter.hpp"
+#include "interpreter.hpp"
 
 void Interpreter::run_cli()
 {

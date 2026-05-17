@@ -1,6 +1,6 @@
 #pragma once
 
-#include "token.hpp"
+#include "../tokenizer/token.hpp"
 
 // Structure de noeud classique
 struct Node {

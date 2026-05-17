@@ -1,7 +1,7 @@
 #pragma once
 
 #include "ast.hpp"
-#include "global.hpp"
+#include "../tokenizer/global.hpp"
 
 /**
  * @brief Classe permettant l'analyse grammaticale du langage de programmation

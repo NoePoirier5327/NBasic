@@ -1,9 +1,9 @@
 #pragma once
 
-#include "ast.hpp"
-#include "parser.hpp"
-#include "token.hpp"
-#include "global.hpp"
+#include "../parser/ast.hpp"
+#include "../parser/parser.hpp"
+#include "../tokenizer/token.hpp"
+#include "../tokenizer/global.hpp"
 #include <fstream>
 
 /**

@@ -1,4 +1,4 @@
-#include "headers/interpreter.hpp"
+#include "interpreter/interpreter.hpp"
 #include <string>
 
 int main(int argc, char *argv[])

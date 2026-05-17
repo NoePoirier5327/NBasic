@@ -1,5 +1,5 @@
-#include "headers/parser.hpp"
-#include "headers/ast.hpp"
+#include "parser.hpp"
+#include "ast.hpp"
 
 ProgramNode Parser::parse_program(Queue& tokens, bool console)
 {

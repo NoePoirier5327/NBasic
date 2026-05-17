@@ -1,5 +1,5 @@
-#include "headers/token.hpp"
-#include "headers/global.hpp"
+#include "token.hpp"
+#include "global.hpp"
 
 void print_token(Queue &tokens)
 {
